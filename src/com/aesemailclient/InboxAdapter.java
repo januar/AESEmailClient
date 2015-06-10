@@ -11,51 +11,54 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class CustomDrawerAdapter extends ArrayAdapter<DrawerItem> {
-
+public class InboxAdapter extends ArrayAdapter<InboxItem> {
+	
 	Context context;
-	List<DrawerItem> drawerItemList;
-	int layoutResID;
-
-	public CustomDrawerAdapter(Context context, int layoutResourceID,
-			List<DrawerItem> listItems) {
+    List<InboxItem> drawerItemList;
+    int layoutResID;
+    
+	public InboxAdapter(Context context, int layoutResourceID,
+			List<InboxItem> listItems) {
 		super(context, layoutResourceID, listItems);
 		// TODO Auto-generated constructor stub
 		this.context = context;
-		this.drawerItemList = listItems;
-		this.layoutResID = layoutResourceID;
+        this.drawerItemList = listItems;
+        this.layoutResID = layoutResourceID;
 	}
-
+	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		// TODO Auto-generated method stub
-		DrawerItemHolder drawerHolder;
+		InboxItemHolder drawerHolder;
 		View view = convertView;
 
 		if (view == null) {
 			LayoutInflater inflater = ((Activity) context).getLayoutInflater();
-			drawerHolder = new DrawerItemHolder();
+			drawerHolder = new InboxItemHolder();
 
 			view = inflater.inflate(layoutResID, parent, false);
-			drawerHolder.ItemName = (TextView) view
-					.findViewById(R.id.drawer_itemName);
-			drawerHolder.icon = (ImageView) view.findViewById(R.id.drawer_icon);
+			drawerHolder.TxtSubject = (TextView) view
+					.findViewById(R.id.txt_subject);
+			drawerHolder.TxtDetail = (TextView) view.findViewById(R.id.txt_detail);
+			drawerHolder.icon = (ImageView) view.findViewById(R.id.email_ava);
 
 			view.setTag(drawerHolder);
 		} else {
-			drawerHolder = (DrawerItemHolder) view.getTag();
+			drawerHolder = (InboxItemHolder) view.getTag();
 		}
 
-		DrawerItem dItem = (DrawerItem) this.drawerItemList.get(position);
+		InboxItem dItem = (InboxItem) this.drawerItemList.get(position);
 		drawerHolder.icon.setImageDrawable(view.getResources().getDrawable(
 				dItem.getImgResID()));
-		drawerHolder.ItemName.setText(dItem.getItemName());
+		drawerHolder.TxtSubject.setText(dItem.getSubject());
+		drawerHolder.TxtDetail.setText(dItem.getEmailDetail());
 
 		return view;
 	}
 
-	private static class DrawerItemHolder {
-		TextView ItemName;
+	private static class InboxItemHolder {
+		TextView TxtSubject;
+		TextView TxtDetail;
 		ImageView icon;
 	}
 }
