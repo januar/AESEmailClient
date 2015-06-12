@@ -3,7 +3,7 @@ package com.aesemailclient;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.aesemailclient.email.MailReader;
+import com.aesemailclient.email.MailReaderAsyncTask;
 
 import android.app.Fragment;
 import android.os.Bundle;
@@ -62,8 +62,8 @@ public class InboxFragment extends Fragment {
 	    adapter = new InboxAdapter(getActivity(), R.layout.inbox_drawer, dataList);
 	    mInboxList.setAdapter(adapter);
 	    
-	    MailReader mailReader = new MailReader(getActivity());
-		mailReader.getMail();
+	    new MailReaderAsyncTask(getActivity()).execute();
+	    
 		return view;
 	}
 	

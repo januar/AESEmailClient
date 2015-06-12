@@ -10,6 +10,7 @@ import javax.mail.Session;
 import javax.mail.Store;
 
 import android.content.Context;
+import android.os.NetworkOnMainThreadException;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -30,7 +31,13 @@ public class MailReader {
 			Properties props = System.getProperties();
 			props.setProperty("mail.store.protocol", "imaps");
 //			props.setProperty("mail.imap.host", "imap.gmail.com");
+			props.setProperty("mail.imap.port", "993");
+			props.setProperty("mail.imap.connectiontimeout", "5000");
+			props.setProperty("mail.imap.timeout", "5000");
+			props.setProperty("mail.imap.ssl.enable", "true");
+			props.setProperty("mail.imap.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 			Session session = Session.getDefaultInstance(props, null);
+			session.setDebug(true);
 			
             Store store = session.getStore("imaps");
             
@@ -42,21 +49,13 @@ public class MailReader {
             return msg;
 		}catch(AuthenticationFailedException ae){
 			Toast.makeText(context, ae.getMessage(), Toast.LENGTH_SHORT).show();
-		} catch (Exception e) {
+		}catch(NetworkOnMainThreadException ne){
+			Toast.makeText(context, "Network not found", Toast.LENGTH_SHORT).show();
+		}
+		catch (Exception e) {
 			// TODO: handle exception
 			Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
 		}
 		return null;
 	}
-	
-	public boolean authenticate() {
-		try {
-			PasswordAuthentication auth = this.authenticator.getPasswordAuthentication();
-		} catch (Exception e) {
-			// TODO: handle exception
-			Log.e("mail", e.getMessage());
-		}
-		return true;
-	}
-
 }
