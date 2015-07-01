@@ -18,9 +18,10 @@ public class InboxFragment extends Fragment {
 	private View view;
 	private SwipeRefreshLayout swipeLayout;
 	private ListView mInboxList;
+	private Fragment fragment;
 	
-	InboxAdapter adapter;
-	List<InboxItem> dataList;
+	public InboxAdapter adapter;
+	public List<InboxItem> dataList;
 
 	public InboxFragment() {
 		// TODO Auto-generated constructor stub
@@ -31,18 +32,14 @@ public class InboxFragment extends Fragment {
 			Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		view = inflater.inflate(R.layout.fragment_inbox, container, false);
-		
+		fragment = this;
 		swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
 		swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 			
 			@Override
 			public void onRefresh() {
 				// TODO Auto-generated method stub
-				new Handler().postDelayed(new Runnable() {
-			        @Override public void run() {
-			            swipeLayout.setRefreshing(false);
-			        }
-			    }, 5000);
+				new MailReaderAsyncTask(getActivity(), swipeLayout, fragment).execute();
 			}
 		});
 	    swipeLayout.setColorScheme(android.R.color.holo_blue_bright, 
@@ -52,17 +49,8 @@ public class InboxFragment extends Fragment {
 	    
 	    mInboxList = (ListView)findViewById(R.id.inbox_list);
 	    dataList = new ArrayList<InboxItem>();
-	    dataList.add(new InboxItem("Test 1", "detail 1", R.drawable.ic_action_about));
-	    dataList.add(new InboxItem("Test 1", "detail 1", R.drawable.ic_action_about));
-	    dataList.add(new InboxItem("Test 1", "detail 1", R.drawable.ic_action_about));
-	    dataList.add(new InboxItem("Test 1", "detail 1", R.drawable.ic_action_about));
-	    dataList.add(new InboxItem("Test 1", "detail 1", R.drawable.ic_action_about));
-	    dataList.add(new InboxItem("Test 1", "detail 1", R.drawable.ic_action_about));
-	    dataList.add(new InboxItem("Test 1", "detail 1", R.drawable.ic_action_about));
 	    adapter = new InboxAdapter(getActivity(), R.layout.inbox_drawer, dataList);
 	    mInboxList.setAdapter(adapter);
-	    
-	    new MailReaderAsyncTask(getActivity()).execute();
 	    
 		return view;
 	}
@@ -71,6 +59,13 @@ public class InboxFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+	}
+	
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		// TODO Auto-generated method stub
+		super.onSaveInstanceState(outState);
+		
 	}
 	
 	protected View findViewById(int id) {

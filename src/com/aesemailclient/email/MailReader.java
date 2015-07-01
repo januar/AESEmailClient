@@ -18,8 +18,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class MailReader {
+	private String TAG = "com.aesemailclient"; 
 	private Context context;
-	
 	MailAuthenticator authenticator;
 	
 	public MailReader(Context context) {
@@ -28,42 +28,47 @@ public class MailReader {
 		authenticator = new MailAuthenticator("januar.srt@gmail.com", "ibrani11:6", "smtp.gmail.com", "465", "465");
 	}
 	
-	public Message getMail() {
+	public Message[] getMail() {
 		try {
-			MailSSLSocketFactory sf = new MailSSLSocketFactory();
-			sf.setTrustAllHosts(true);
+//			MailSSLSocketFactory sf = new MailSSLSocketFactory();
+//			sf.setTrustAllHosts(true);
 			
 			PasswordAuthentication auth = authenticator.getPasswordAuthentication();
-			Properties props = new Properties();
-			props.put("mail.debug", true);
-			props.put("mail.store.protocol", "imaps");
+			Properties props = System.getProperties();
+			Session session = Session.getInstance(props, null);
+			session.setDebug(true);
+			
+			Store store = session.getStore("imaps");
+//			props.put("mail.debug", true);
+//			props.put("mail.store.protocol", "imaps");
 //			props.setProperty("mail.imap.host", "imap.gmail.com");
 //			props.setProperty("mail.imap.port", "993");
 //			props.setProperty("mail.imap.connectiontimeout", "5000");
 //			props.setProperty("mail.imap.timeout", "5000");
-			props.put("mail.imap.ssl.enable", "true");
-			props.put("mail.protocol.ssl.trust", "imap.gmail.com");
-			props.put("mail.imap.ssl.socketFactory", sf);
+//			props.put("mail.imap.ssl.enable", "true");
+//			props.put("mail.protocol.ssl.trust", "imap.gmail.com");
+//			props.put("mail.imap.ssl.socketFactory", sf);
 //			props.setProperty("mail.imap.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-			Session session = Session.getDefaultInstance(props, null);
-			session.setDebug(true);
 			
-            Store store = session.getStore("imaps");
             
-            store.connect("imap.gmail.com", auth.getUserName(), auth.getPassword());
-//            store.connect();
-            Folder inbox = store.getFolder("INBOX");
-            inbox.open(Folder.READ_ONLY);
-            Message msg = inbox.getMessage(10);
+            store.connect("imap.gmail.com", -1, auth.getUserName(), auth.getPassword());
+            Folder inbox = store.getDefaultFolder();
+            inbox = inbox.getFolder("INBOX");
+            inbox.open(Folder.READ_WRITE);
+            int emailcount = inbox.getMessageCount();
+            Message[] msg = inbox.getMessages(emailcount-10, emailcount);
             return msg;
 		}catch(AuthenticationFailedException ae){
-			Toast.makeText(context, ae.getMessage(), Toast.LENGTH_SHORT).show();
+			Log.e(TAG, ae.getMessage());
 		}catch(NetworkOnMainThreadException ne){
-			Toast.makeText(context, "Network not found", Toast.LENGTH_SHORT).show();
+			Log.e(TAG, ne.getMessage());
+		}
+		catch (RuntimeException re) {
+			Log.e(TAG, re.getMessage());
 		}
 		catch (Exception e) {
 			// TODO: handle exception
-			Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+			Log.e(TAG, e.getMessage());
 		}
 		return null;
 	}
