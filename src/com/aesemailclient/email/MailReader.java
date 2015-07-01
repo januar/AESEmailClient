@@ -8,6 +8,9 @@ import javax.mail.Message;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Store;
+import javax.mail.internet.NewsAddress;
+
+import com.sun.mail.util.MailSSLSocketFactory;
 
 import android.content.Context;
 import android.os.NetworkOnMainThreadException;
@@ -27,15 +30,21 @@ public class MailReader {
 	
 	public Message getMail() {
 		try {
+			MailSSLSocketFactory sf = new MailSSLSocketFactory();
+			sf.setTrustAllHosts(true);
+			
 			PasswordAuthentication auth = authenticator.getPasswordAuthentication();
-			Properties props = System.getProperties();
-			props.setProperty("mail.store.protocol", "imaps");
+			Properties props = new Properties();
+			props.put("mail.debug", true);
+			props.put("mail.store.protocol", "imaps");
 //			props.setProperty("mail.imap.host", "imap.gmail.com");
-			props.setProperty("mail.imap.port", "993");
-			props.setProperty("mail.imap.connectiontimeout", "5000");
-			props.setProperty("mail.imap.timeout", "5000");
-			props.setProperty("mail.imap.ssl.enable", "true");
-			props.setProperty("mail.imap.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+//			props.setProperty("mail.imap.port", "993");
+//			props.setProperty("mail.imap.connectiontimeout", "5000");
+//			props.setProperty("mail.imap.timeout", "5000");
+			props.put("mail.imap.ssl.enable", "true");
+			props.put("mail.protocol.ssl.trust", "imap.gmail.com");
+			props.put("mail.imap.ssl.socketFactory", sf);
+//			props.setProperty("mail.imap.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 			Session session = Session.getDefaultInstance(props, null);
 			session.setDebug(true);
 			
