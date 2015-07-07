@@ -49,7 +49,7 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 				Address[] addrTo = msg[i].getAllRecipients();
 				InboxEntity item = new InboxEntity(0, msg[i].getSubject(), addr[0].toString(), addrTo.toString(), msg[i].getSentDate().toString(), false);
 				
-				dataList.add(new InboxItem(msg[i].getSubject(), addr[0].toString().replaceAll("^\"", ""), R.drawable.ic_action_about));
+//				dataList.add(new InboxItem(msg[i].getSubject(), addr[0].toString().replaceAll("^\"", ""), R.drawable.ic_action_about));
 			}
 			return true;
 		}catch(MessagingException me){
