@@ -10,6 +10,7 @@ import javax.mail.MessagingException;
 import com.aesemailclient.InboxFragment;
 import com.aesemailclient.InboxItem;
 import com.aesemailclient.R;
+import com.aesemailclient.db.InboxEntity;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -23,7 +24,7 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 	Activity activity;
 	SwipeRefreshLayout swipeLayout;
 	InboxFragment fragment;
-	List<InboxItem> dataList;
+	List<InboxEntity> dataList;
 	
 	public MailReaderAsyncTask(Activity _activity, SwipeRefreshLayout swipeLayout, Fragment fragment) {
 		// TODO Auto-generated constructor stub
@@ -42,11 +43,13 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 			return false;
 		}
 		try{
-			dataList = new ArrayList<InboxItem>();
+			dataList = new ArrayList<InboxEntity>();
 			for (int i = 0; i < msg.length; i++) {
 				Address[] addr = msg[i].getFrom();
+				Address[] addrTo = msg[i].getAllRecipients();
+				InboxEntity item = new InboxEntity(0, msg[i].getSubject(), addr[0].toString(), addrTo.toString(), msg[i].getSentDate().toString(), false);
 				
-				dataList.add(new InboxItem(msg[i].getSubject(), addr[0].toString(), R.drawable.ic_action_about));
+				dataList.add(new InboxItem(msg[i].getSubject(), addr[0].toString().replaceAll("^\"", ""), R.drawable.ic_action_about));
 			}
 			return true;
 		}catch(MessagingException me){

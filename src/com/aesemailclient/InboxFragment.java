@@ -9,10 +9,13 @@ import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 public class InboxFragment extends Fragment {
 	private View view;
@@ -48,9 +51,36 @@ public class InboxFragment extends Fragment {
 	            android.R.color.holo_red_light);
 	    
 	    mInboxList = (ListView)findViewById(R.id.inbox_list);
+	    final ProgressBar progressBar = new ProgressBar(getActivity());
+	    progressBar.setVisibility(View.GONE);
+		mInboxList.addFooterView(progressBar);
 	    dataList = new ArrayList<InboxItem>();
 	    adapter = new InboxAdapter(getActivity(), R.layout.inbox_drawer, dataList);
 	    mInboxList.setAdapter(adapter);
+		
+	    mInboxList.setOnScrollListener(new AbsListView.OnScrollListener() {
+			
+			@Override
+			public void onScrollStateChanged(AbsListView view, int scrollState) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onScroll(AbsListView view, int firstVisibleItem,
+					int visibleItemCount, int totalItemCount) {
+				// TODO Auto-generated method stub
+				Log.i(getTag(), "firstVisibleItem = " + firstVisibleItem + 
+						" visibleItemCount = " + visibleItemCount +
+						" totalItemCount = " + totalItemCount);
+				
+				if((totalItemCount - visibleItemCount) == firstVisibleItem && totalItemCount > 1)
+				{
+					Log.i(getTag(), "Last item");
+					progressBar.setVisibility(View.VISIBLE);
+				}
+			}
+		});
 	    
 		return view;
 	}

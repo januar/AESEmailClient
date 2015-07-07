@@ -1,5 +1,8 @@
 package com.aesemailclient.email;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Properties;
 
 import javax.mail.AuthenticationFailedException;
@@ -9,6 +12,10 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.NewsAddress;
+import javax.mail.search.AndTerm;
+import javax.mail.search.ComparisonTerm;
+import javax.mail.search.ReceivedDateTerm;
+import javax.mail.search.SearchTerm;
 
 import com.sun.mail.util.MailSSLSocketFactory;
 
@@ -55,9 +62,23 @@ public class MailReader {
             Folder inbox = store.getDefaultFolder();
             inbox = inbox.getFolder("INBOX");
             inbox.open(Folder.READ_WRITE);
-            int emailcount = inbox.getMessageCount();
-            Message[] msg = inbox.getMessages(emailcount-10, emailcount);
-            return msg;
+//            int emailcount = inbox.getMessageCount();
+//            Message[] msg = inbox.getMessages(emailcount-9, emailcount);
+            
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DATE, 1);
+            Date now = cal.getTime();
+            cal.add(Calendar.DATE, -2);
+            SearchTerm olderThan = new ReceivedDateTerm(ComparisonTerm.LT, now);
+            SearchTerm newerThan = new ReceivedDateTerm(ComparisonTerm.GT, cal.getTime());
+            Message[] msg = inbox.search(new AndTerm(olderThan, newerThan));
+            Log.i(TAG, "length : " + msg.length);
+            
+            Message[] orderMsg = new Message[msg.length];
+            for (int i = 0; i < orderMsg.length; i++) {
+				orderMsg[i] = msg[(msg.length - 1) - i];
+			}
+            return orderMsg;
 		}catch(AuthenticationFailedException ae){
 			Log.e(TAG, ae.getMessage());
 		}catch(NetworkOnMainThreadException ne){

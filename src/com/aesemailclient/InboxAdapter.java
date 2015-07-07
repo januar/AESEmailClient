@@ -2,6 +2,9 @@ package com.aesemailclient;
 
 import java.util.List;
 
+import com.aesemailclient.textdrawable.TextDrawable;
+import com.aesemailclient.textdrawable.util.ColorGenerator;
+
 import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -40,6 +43,7 @@ public class InboxAdapter extends ArrayAdapter<InboxItem> {
 			drawerHolder.TxtSubject = (TextView) view
 					.findViewById(R.id.txt_subject);
 			drawerHolder.TxtDetail = (TextView) view.findViewById(R.id.txt_detail);
+			
 			drawerHolder.icon = (ImageView) view.findViewById(R.id.email_ava);
 
 			view.setTag(drawerHolder);
@@ -48,11 +52,15 @@ public class InboxAdapter extends ArrayAdapter<InboxItem> {
 		}
 
 		InboxItem dItem = (InboxItem) this.drawerItemList.get(position);
-		drawerHolder.icon.setImageDrawable(view.getResources().getDrawable(
-				dItem.getImgResID()));
+		
 		drawerHolder.TxtSubject.setText(dItem.getSubject());
 		drawerHolder.TxtDetail.setText(dItem.getEmailDetail());
-
+		
+		ColorGenerator generator = ColorGenerator.MATERIAL;
+		int color = generator.getColor(dItem.getEmailDetail());
+		TextDrawable.IBuilder builder = TextDrawable.builder().round();
+		TextDrawable td = builder.build(dItem.getEmailDetail().substring(0, 1).toUpperCase(), color);
+		drawerHolder.icon.setImageDrawable(td);
 		return view;
 	}
 
