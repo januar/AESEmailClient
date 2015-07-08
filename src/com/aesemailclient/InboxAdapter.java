@@ -2,6 +2,7 @@ package com.aesemailclient;
 
 import java.util.List;
 
+import com.aesemailclient.db.InboxEntity;
 import com.aesemailclient.textdrawable.TextDrawable;
 import com.aesemailclient.textdrawable.util.ColorGenerator;
 
@@ -14,14 +15,14 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class InboxAdapter extends ArrayAdapter<InboxItem> {
+public class InboxAdapter extends ArrayAdapter<InboxEntity> {
 	
 	Context context;
-    List<InboxItem> drawerItemList;
+    List<InboxEntity> drawerItemList;
     int layoutResID;
     
 	public InboxAdapter(Context context, int layoutResourceID,
-			List<InboxItem> listItems) {
+			List<InboxEntity> listItems) {
 		super(context, layoutResourceID, listItems);
 		// TODO Auto-generated constructor stub
 		this.context = context;
@@ -51,15 +52,15 @@ public class InboxAdapter extends ArrayAdapter<InboxItem> {
 			drawerHolder = (InboxItemHolder) view.getTag();
 		}
 
-		InboxItem dItem = (InboxItem) this.drawerItemList.get(position);
+		InboxEntity dItem = (InboxEntity) this.drawerItemList.get(position);
 		
 		drawerHolder.TxtSubject.setText(dItem.getSubject());
-		drawerHolder.TxtDetail.setText(dItem.getEmailDetail());
+		drawerHolder.TxtDetail.setText(dItem.getFrom());
 		
 		ColorGenerator generator = ColorGenerator.MATERIAL;
-		int color = generator.getColor(dItem.getEmailDetail());
+		int color = generator.getColor(dItem.getFrom());
 		TextDrawable.IBuilder builder = TextDrawable.builder().round();
-		TextDrawable td = builder.build(dItem.getEmailDetail().substring(0, 1).toUpperCase(), color);
+		TextDrawable td = builder.build(dItem.getFrom().substring(0, 1).toUpperCase(), color);
 		drawerHolder.icon.setImageDrawable(td);
 		return view;
 	}

@@ -13,7 +13,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	public static Map<String, Map<String, String>> DATABASE_ENTITY;
 
 	private static final String DATABASE_NAME = "aesemailclient.db";
-	private static final int DATABASE_VERSION = 0;
+	private static final int DATABASE_VERSION = 1;
 
 	public MySQLiteHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -60,12 +60,12 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		DATABASE_ENTITY = new HashMap<String, Map<String, String>>();
 		// table inbox
 		Map<String, String> inboxTable = new HashMap<String, String>();
-		inboxTable.put("id_inbox", "integer primary key autoincrement");
-		inboxTable.put("subject", "text");
-		inboxTable.put("from", "text not null");
-		inboxTable.put("to", "text not null");
-		inboxTable.put("date", "text not null");
-		inboxTable.put("is_read", "integer");
+		inboxTable.put(InboxDataSource.COLUMN_ID, "integer primary key autoincrement");
+		inboxTable.put(InboxDataSource.COLUMN_SUBJECT, "text");
+		inboxTable.put(InboxDataSource.COLUMN_FROM, "text not null");
+		inboxTable.put(InboxDataSource.COLUMN_TO, "text not null");
+		inboxTable.put(InboxDataSource.COLUMN_DATE, "text not null");
+		inboxTable.put(InboxDataSource.COLUMN_ISREAD, "integer");
 		DATABASE_ENTITY.put("t_inbox", inboxTable);
 
 		// table user
@@ -79,8 +79,8 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		Map<String, String> sentTable = new HashMap<String, String>();
 		sentTable.put("id_sent", "integer primary key autoincrement");
 		inboxTable.put("subjec", "text");
-		inboxTable.put("from", "text not null");
-		inboxTable.put("to", "text not null");
+		inboxTable.put("from_add", "text not null");
+		inboxTable.put("to_add", "text not null");
 		inboxTable.put("date", "text not null");
 		DATABASE_ENTITY.put("t_sent", sentTable);
 	}

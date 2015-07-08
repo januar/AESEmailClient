@@ -35,7 +35,7 @@ public class MailReader {
 		authenticator = new MailAuthenticator("januar.srt@gmail.com", "ibrani11:6", "smtp.gmail.com", "465", "465");
 	}
 	
-	public Message[] getMail() {
+	public Message[] getMail(Date date) {
 		try {
 //			MailSSLSocketFactory sf = new MailSSLSocketFactory();
 //			sf.setTrustAllHosts(true);
@@ -66,6 +66,7 @@ public class MailReader {
 //            Message[] msg = inbox.getMessages(emailcount-9, emailcount);
             
             Calendar cal = Calendar.getInstance();
+            cal.setTime(date);
             cal.add(Calendar.DATE, 1);
             Date now = cal.getTime();
             cal.add(Calendar.DATE, -2);
