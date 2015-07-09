@@ -1,17 +1,23 @@
 package com.aesemailclient;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import me.maxwin.view.XListView;
+import me.maxwin.view.XListView.IXListViewListener;
+
 import com.aesemailclient.db.InboxDataSource;
 import com.aesemailclient.db.InboxEntity;
 import com.aesemailclient.email.MailReaderAsyncTask;
 import android.app.Fragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,9 +32,9 @@ public class InboxFragment extends Fragment {
 	
 	private View view;
 	private SwipeRefreshLayout swipeLayout;
-	private ListView mInboxList;
 	private Fragment fragment;
 	
+	public XListView mInboxList;
 	public ProgressBar progressBar;
 	public InboxAdapter adapter;
 	public List<InboxEntity> dataList;
@@ -59,17 +65,51 @@ public class InboxFragment extends Fragment {
 	            android.R.color.holo_orange_light, 
 	            android.R.color.holo_red_light);
 	    
-	    mInboxList = (ListView)findViewById(R.id.inbox_list);
-	    progressBar = new ProgressBar(getActivity());
+	    mInboxList = (XListView)findViewById(R.id.inbox_list);
+	    mInboxList.setPullRefreshEnable(false);
+	    mInboxList.setPullLoadEnable(true);
+	    /*progressBar = new ProgressBar(getActivity());
 	    progressBar.setVisibility(View.GONE);
-		mInboxList.addFooterView(progressBar);
+		mInboxList.addFooterView(progressBar);*/
+	    
 	    dataList = new ArrayList<InboxEntity>();
-	    adapter = new InboxAdapter(getActivity(), R.layout.inbox_drawer, dataList);
+    	adapter = new InboxAdapter(getActivity(), R.layout.inbox_drawer, dataList);
 	    mInboxList.setAdapter(adapter);
+	    
+	    mInboxList.setXListViewListener(new IXListViewListener() {
+			
+			@Override
+			public void onRefresh() {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onLoadMore() {
+				// TODO Auto-generated method stub
+				if(!loading)
+				{
+					Date date = new Date();
+					SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+					String time_text = CacheToFile.Read(getActivity(), CacheToFile.DATE_TEMP);
+					if (time_text != "") {
+						try {
+							Calendar cal = Calendar.getInstance();
+							cal.setTime(sdf.parse(time_text));
+							cal.add(Calendar.DATE, -1);
+							date = cal.getTime();
+						} catch (ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					
+					new MailReaderAsyncTask(getActivity(), swipeLayout, fragment).execute(sdf.format(date), "before");
+				}
+			}
+		});
 		
-	    
-	    
-	    mInboxList.setOnScrollListener(new AbsListView.OnScrollListener() {
+	    /*mInboxList.setOnScrollListener(new AbsListView.OnScrollListener() {
 			
 			@Override
 			public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -85,34 +125,32 @@ public class InboxFragment extends Fragment {
 						" visibleItemCount = " + visibleItemCount +
 						" totalItemCount = " + totalItemCount);
 				
-//				if((totalItemCount - visibleItemCount) == firstVisibleItem && totalItemCount > 1)
-//				{
-//					progressBar.setVisibility(View.VISIBLE);
-//					Log.i(getTag(), "Last item");
-//					if(!loading)
-//					{
-//						Date date = new Date();
-//						SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-//						String time_text = CacheToFile.Read(getActivity(), CacheToFile.DATE_TEMP);
-//						if (time_text != "") {
-//							try {
-//								Calendar cal = Calendar.getInstance();
-//								cal.setTime(sdf.parse(time_text));
-//								cal.add(Calendar.DATE, -1);
-//								date = cal.getTime();
-//							} catch (ParseException e) {
-//								// TODO Auto-generated catch block
-//								e.printStackTrace();
-//							}
-//						}
-//						
-//						new MailReaderAsyncTask(getActivity(), swipeLayout, fragment).execute(sdf.format(date), "before");
-//					}
-//				}
+				if((totalItemCount - visibleItemCount) == firstVisibleItem && totalItemCount > 1)
+				{
+					progressBar.setVisibility(View.VISIBLE);
+					Log.i(getTag(), "Last item");
+					if(!loading)
+					{
+						Date date = new Date();
+						SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+						String time_text = CacheToFile.Read(getActivity(), CacheToFile.DATE_TEMP);
+						if (time_text != "") {
+							try {
+								Calendar cal = Calendar.getInstance();
+								cal.setTime(sdf.parse(time_text));
+								cal.add(Calendar.DATE, -1);
+								date = cal.getTime();
+							} catch (ParseException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+						
+						new MailReaderAsyncTask(getActivity(), swipeLayout, fragment).execute(sdf.format(date), "before");
+					}
+				}
 			}
-		});
-	    
-	    new InboxAsyncTask().execute();
+		});*/
 		return view;
 	}
 	
@@ -126,7 +164,21 @@ public class InboxFragment extends Fragment {
 	public void onSaveInstanceState(Bundle outState) {
 		// TODO Auto-generated method stub
 		super.onSaveInstanceState(outState);
+		outState.putSerializable("inbox_list", (Serializable) dataList);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onActivityCreated(savedInstanceState);
 		
+		if (savedInstanceState != null) {
+			dataList = (List<InboxEntity>) savedInstanceState.getSerializable("inbox_list");
+			adapter.notifyDataSetChanged();
+		}else{
+			new InboxAsyncTask().execute();
+		}
 	}
 	
 	protected View findViewById(int id) {

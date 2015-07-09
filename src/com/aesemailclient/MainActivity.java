@@ -28,12 +28,14 @@ public class MainActivity extends Activity {
 
 	CustomDrawerAdapter adapter;
 	List<DrawerItem> dataList;
+	
+	Fragment mCurrent;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
+		
 		dataList = new ArrayList<DrawerItem>();
 		mTitle = mDrawerTitle = getTitle();
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -90,9 +92,9 @@ public class MainActivity extends Activity {
 	}
 
 	public void SelectItem(int possition) {
-
 		Fragment fragment = null;
 		Bundle args = new Bundle();
+		
 		switch (possition) {
 		case 0:
 			fragment = new InboxFragment();
@@ -110,7 +112,7 @@ public class MainActivity extends Activity {
 		FragmentManager frgManager = getFragmentManager();
 		frgManager.beginTransaction().replace(R.id.content_frame, fragment)
 				.commit();
-
+		mCurrent = fragment;
 		mDrawerList.setItemChecked(possition, true);
 		setTitle(dataList.get(possition).getItemName());
 		mDrawerLayout.closeDrawer(mDrawerList);
@@ -153,6 +155,8 @@ public class MainActivity extends Activity {
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
+			if (mCurrent != null) {
+			}
 			SelectItem(position);
 		}
 	}

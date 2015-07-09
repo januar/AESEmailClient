@@ -28,11 +28,11 @@ import android.widget.Toast;
 
 public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 	
+	private String message;
 	private InboxDataSource datasource;
 	Activity activity;
 	SwipeRefreshLayout swipeLayout;
 	InboxFragment fragment;
-	List<InboxEntity> dataList;
 	String type;
 	
 	public MailReaderAsyncTask(Activity _activity, SwipeRefreshLayout swipeLayout, Fragment fragment) {
@@ -72,16 +72,20 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 				}
 			} 
 			
-			if(msg == null)
+			if(msg == null){
+				this.message = "No data found";
 				return false;
+			}
 		}
 		try{
-			dataList = new ArrayList<InboxEntity>();
+			fragment.dataList = new ArrayList<InboxEntity>();
 			datasource.open();
 			for (int i = 0; i < msg.length; i++) {
 				Address[] addr = msg[i].getFrom();
 				Address[] addrTo = msg[i].getAllRecipients();
-				InboxEntity item = new InboxEntity(0, msg[i].getSubject(), addr[0].toString(), addrTo[0].toString(), msg[i].getSentDate().toString(), false);
+				
+				InboxEntity item = new InboxEntity(0, msg[i].getSubject(), addr[0].toString(), 
+						addrTo[0].toString(), msg[i].getSentDate().toString(), mailReader.GetEmailContent(msg[i]), false);
 				
 				String where = "subject = ? AND from_add = ? AND date = ?";
 				String[] whereArgs = new String[]{item.getSubject(), item.getFrom(), item.getDate()};
@@ -91,14 +95,16 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 					datasource.save(item);
 				}
 			}
-			dataList = datasource.getAll();
+			fragment.dataList = datasource.getAll();
 			datasource.close();
 			return true;
 		}catch(MessagingException me){
 			me.printStackTrace();
+			this.message = me.getMessage();
 			return false;
 		}catch (Exception e) {
 			// TODO: handle exception
+			this.message = e.getMessage();
 			e.printStackTrace();
 		}
 		return false;
@@ -111,14 +117,14 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 		if(result)
 		{
 			fragment.adapter.clear();
-			fragment.adapter.addAll(dataList);
+			fragment.adapter.addAll(fragment.dataList);
 			fragment.adapter.notifyDataSetChanged();
 		}else{
-			Toast.makeText(this.activity, "Failed connected to email server", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this.activity, message, Toast.LENGTH_SHORT).show();
 		}
 		if(type == "before")
 		{
-			fragment.progressBar.setVisibility(View.INVISIBLE);
+			fragment.mInboxList.stopLoadMore();
 		}else{
 			swipeLayout.setRefreshing(false);
 		}

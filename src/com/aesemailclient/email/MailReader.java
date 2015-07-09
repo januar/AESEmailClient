@@ -1,5 +1,6 @@
 package com.aesemailclient.email;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -8,22 +9,19 @@ import java.util.Properties;
 import javax.mail.AuthenticationFailedException;
 import javax.mail.Folder;
 import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.Part;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Store;
-import javax.mail.internet.NewsAddress;
 import javax.mail.search.AndTerm;
 import javax.mail.search.ComparisonTerm;
 import javax.mail.search.ReceivedDateTerm;
 import javax.mail.search.SearchTerm;
-
-import com.sun.mail.util.MailSSLSocketFactory;
-
 import android.content.Context;
 import android.os.NetworkOnMainThreadException;
 import android.util.Log;
-import android.widget.Toast;
-
 public class MailReader {
 	private String TAG = "com.aesemailclient"; 
 	private Context context;
@@ -93,5 +91,31 @@ public class MailReader {
 			Log.e(TAG, e.getMessage());
 		}
 		return null;
+	}
+	
+	public String GetEmailContent(Part p) {
+		String content = "";
+		
+		try {
+			if (p.isMimeType("text/plain") || p.isMimeType("text/html")) {
+				content = (String)p.getContent();
+			}else if (p.isMimeType("multipart/*")) {
+				Multipart mp = (Multipart) p.getContent();
+				int count = mp.getCount();
+				for (int i = 0; i < count; i++){
+					content = GetEmailContent(mp.getBodyPart(i));
+					if (content != "")
+						break;
+				}
+			}
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return content;
 	}
 }

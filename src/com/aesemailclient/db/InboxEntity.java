@@ -6,18 +6,20 @@ public class InboxEntity {
 	private String from;
 	private String to;
 	private String date;
+	private String content;
 	private Boolean isread;
 	
 	public InboxEntity() {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public InboxEntity(int id, String subject, String from, String to, String date, Boolean isread){
+	public InboxEntity(int id, String subject, String from, String to, String date, String content, Boolean isread){
 		this.id_inbox = id;
 		this.subject = subject;
 		this.from = from;
 		this.to = to;
 		this.date = date;
+		this.content = content;
 		this.isread = isread;
 	}
 	
@@ -55,6 +57,13 @@ public class InboxEntity {
 	}
 	public String getDate() {
 		return this.date;
+	}
+	
+	public void setContent(String content) {
+		this.content = content;
+	}
+	public String getContent() {
+		return this.content;
 	}
 	
 	public void setRead(Boolean read) {

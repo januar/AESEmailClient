@@ -43,8 +43,8 @@ public class InboxAdapter extends ArrayAdapter<InboxEntity> {
 			view = inflater.inflate(layoutResID, parent, false);
 			drawerHolder.TxtSubject = (TextView) view
 					.findViewById(R.id.txt_subject);
-			drawerHolder.TxtDetail = (TextView) view.findViewById(R.id.txt_detail);
-			
+			drawerHolder.TxtFrom = (TextView) view.findViewById(R.id.txt_from);
+			drawerHolder.TxtDate = (TextView)view.findViewById(R.id.txt_date);
 			drawerHolder.icon = (ImageView) view.findViewById(R.id.email_ava);
 
 			view.setTag(drawerHolder);
@@ -55,19 +55,22 @@ public class InboxAdapter extends ArrayAdapter<InboxEntity> {
 		InboxEntity dItem = (InboxEntity) this.drawerItemList.get(position);
 		
 		drawerHolder.TxtSubject.setText(dItem.getSubject());
-		drawerHolder.TxtDetail.setText(dItem.getFrom());
+		drawerHolder.TxtFrom.setText(dItem.getFrom());
+		drawerHolder.TxtDate.setText(dItem.getDate());
 		
 		ColorGenerator generator = ColorGenerator.MATERIAL;
 		int color = generator.getColor(dItem.getFrom());
 		TextDrawable.IBuilder builder = TextDrawable.builder().round();
-		TextDrawable td = builder.build(dItem.getFrom().substring(0, 1).toUpperCase(), color);
+		String icon = (dItem.getFrom().matches("^[a-zA-Z0-9]"))?dItem.getFrom().substring(0, 1):dItem.getFrom().substring(1, 2);
+		TextDrawable td = builder.build(icon.toUpperCase(), color);
 		drawerHolder.icon.setImageDrawable(td);
 		return view;
 	}
 
 	private static class InboxItemHolder {
 		TextView TxtSubject;
-		TextView TxtDetail;
+		TextView TxtFrom;
+		TextView TxtDate;
 		ImageView icon;
 	}
 }

@@ -13,7 +13,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	public static Map<String, Map<String, String>> DATABASE_ENTITY;
 
 	private static final String DATABASE_NAME = "aesemailclient.db";
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 3;
 
 	public MySQLiteHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -65,6 +65,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		inboxTable.put(InboxDataSource.COLUMN_FROM, "text not null");
 		inboxTable.put(InboxDataSource.COLUMN_TO, "text not null");
 		inboxTable.put(InboxDataSource.COLUMN_DATE, "text not null");
+		inboxTable.put(InboxDataSource.COLUMN_CONTENT, "text");
 		inboxTable.put(InboxDataSource.COLUMN_ISREAD, "integer");
 		DATABASE_ENTITY.put("t_inbox", inboxTable);
 
@@ -78,7 +79,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		// table sent
 		Map<String, String> sentTable = new HashMap<String, String>();
 		sentTable.put("id_sent", "integer primary key autoincrement");
-		inboxTable.put("subjec", "text");
+		inboxTable.put("subject", "text");
 		inboxTable.put("from_add", "text not null");
 		inboxTable.put("to_add", "text not null");
 		inboxTable.put("date", "text not null");
