@@ -28,11 +28,12 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 public class InboxFragment extends Fragment {
-	public static final String DATE_FORMAT = "dd-MM-yyyy";
+	public static final String DATE_FORMAT = "dd-MM-yyyy HH:mm:ss";
 	
 	private View view;
 	private SwipeRefreshLayout swipeLayout;
 	private Fragment fragment;
+	private Bundle bundle;
 	
 	public XListView mInboxList;
 	public ProgressBar progressBar;
@@ -50,14 +51,17 @@ public class InboxFragment extends Fragment {
 		// TODO Auto-generated method stub
 		view = inflater.inflate(R.layout.fragment_inbox, container, false);
 		fragment = this;
+		bundle = savedInstanceState;
 		swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
 		swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 			
 			@Override
 			public void onRefresh() {
 				// TODO Auto-generated method stub
-				String date = new SimpleDateFormat(DATE_FORMAT).format(Calendar.getInstance().getTime());
-				new MailReaderAsyncTask(getActivity(), swipeLayout, fragment).execute(date,"after");
+				if (!loading) {
+					String date = new SimpleDateFormat(DATE_FORMAT).format(Calendar.getInstance().getTime());
+					new MailReaderAsyncTask(getActivity(), swipeLayout, fragment).execute(date,"after");
+				}
 			}
 		});
 	    swipeLayout.setColorScheme(android.R.color.holo_blue_bright, 
@@ -90,13 +94,13 @@ public class InboxFragment extends Fragment {
 				if(!loading)
 				{
 					Date date = new Date();
-					SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-					String time_text = CacheToFile.Read(getActivity(), CacheToFile.DATE_TEMP);
+					SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+					String time_text = CacheToFile.Read(getActivity(), CacheToFile.DATE_OLD);
 					if (time_text != "") {
 						try {
 							Calendar cal = Calendar.getInstance();
 							cal.setTime(sdf.parse(time_text));
-							cal.add(Calendar.DATE, -1);
+//							cal.add(Calendar.DATE, -1);
 							date = cal.getTime();
 						} catch (ParseException e) {
 							// TODO Auto-generated catch block
@@ -172,9 +176,10 @@ public class InboxFragment extends Fragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onActivityCreated(savedInstanceState);
-		
-		if (savedInstanceState != null) {
-			dataList = (List<InboxEntity>) savedInstanceState.getSerializable("inbox_list");
+		Bundle data = getArguments();
+		if (data.getSerializable("inbox_list") != null) {
+			dataList = (List<InboxEntity>) data.getSerializable("inbox_list");
+			adapter.addAll(dataList);
 			adapter.notifyDataSetChanged();
 		}else{
 			new InboxAsyncTask().execute();

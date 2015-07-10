@@ -61,7 +61,7 @@ public class InboxAdapter extends ArrayAdapter<InboxEntity> {
 		ColorGenerator generator = ColorGenerator.MATERIAL;
 		int color = generator.getColor(dItem.getFrom());
 		TextDrawable.IBuilder builder = TextDrawable.builder().round();
-		String icon = (dItem.getFrom().matches("^[a-zA-Z0-9]"))?dItem.getFrom().substring(0, 1):dItem.getFrom().substring(1, 2);
+		String icon = (dItem.getFrom().matches("^[a-zA-Z].*$"))?dItem.getFrom().substring(0, 1):dItem.getFrom().substring(1, 2);
 		TextDrawable td = builder.build(icon.toUpperCase(), color);
 		drawerHolder.icon.setImageDrawable(td);
 		return view;

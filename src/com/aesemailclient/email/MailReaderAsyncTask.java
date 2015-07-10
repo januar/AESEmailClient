@@ -28,6 +28,8 @@ import android.widget.Toast;
 
 public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 	
+	private Date from;
+	private Date to;
 	private String message;
 	private InboxDataSource datasource;
 	Activity activity;
@@ -43,31 +45,58 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 		datasource = new InboxDataSource(this.activity);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	protected Boolean doInBackground(String... params) {
 		// TODO Auto-generated method stub
-		Date date = null;
+		from = new Date();
+		to = new Date();
+		Date tempDate = new Date();
+		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat(InboxFragment.DATE_FORMAT);
+		type = params[1];
+		
 		try {
-			date = new SimpleDateFormat(InboxFragment.DATE_FORMAT).parse(params[0]);
+			from = sdf.parse(params[0]);
 		} catch (ParseException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		type = params[1];
+		cal.setTime(from);
+		cal.add(Calendar.DATE, -1);
+		to = cal.getTime();
+		tempDate = from;
+		
+		if(type == "after"){
+			String date_last = CacheToFile.Read(activity, CacheToFile.DATE_LAST);
+			if (date_last != "") {
+				try {
+					to = sdf.parse(date_last);
+					if(tempDate.getYear() == to.getYear() && tempDate.getMonth() == to.getMonth() && tempDate.getDay() == to.getDay())
+					{
+						cal.setTime(tempDate);
+						cal.add(Calendar.DATE, 1);
+						tempDate = cal.getTime();
+					}
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 		
 		MailReader mailReader = new MailReader(activity);
-		Message[] msg = mailReader.getMail(date);
+		Message[] msg = mailReader.getMail(tempDate, to);
 		if(msg == null)
 		{
 			int maxloop = 0;
 			if (type == "before") {
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(date);
+//				cal.setTime(from);
 				while(msg == null && maxloop < 3)
 				{
 					cal.add(Calendar.DATE, -1);
-					Date addDate = cal.getTime();
-					msg = mailReader.getMail(addDate);
+					to = cal.getTime();
+					msg = mailReader.getMail(from, to);
 					maxloop++;
 				}
 			} 
@@ -114,6 +143,7 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 	protected void onPostExecute(Boolean result) {
 		// TODO Auto-generated method stub
 		super.onPostExecute(result);
+		SimpleDateFormat sdf = new SimpleDateFormat(InboxFragment.DATE_FORMAT);
 		if(result)
 		{
 			fragment.adapter.clear();
@@ -125,8 +155,10 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 		if(type == "before")
 		{
 			fragment.mInboxList.stopLoadMore();
+			CacheToFile.Write(this.activity, CacheToFile.DATE_OLD, sdf.format(to));
 		}else{
 			swipeLayout.setRefreshing(false);
+			CacheToFile.Write(this.activity, CacheToFile.DATE_LAST, sdf.format(from));
 		}
 		fragment.loading = false;
 	}

@@ -19,6 +19,7 @@ import android.widget.ListView;
 
 public class MainActivity extends Activity {
 
+	private Bundle args;
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
 	private ActionBarDrawerToggle mDrawerToggle;
@@ -80,7 +81,10 @@ public class MainActivity extends Activity {
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 
 		if (savedInstanceState == null) {
+			args = new Bundle();
 			SelectItem(0);
+		}else{
+			args = savedInstanceState;
 		}
 	}
 
@@ -93,7 +97,10 @@ public class MainActivity extends Activity {
 
 	public void SelectItem(int possition) {
 		Fragment fragment = null;
-		Bundle args = new Bundle();
+//		Bundle args = new Bundle();
+		if (mCurrent != null) {
+			mCurrent.onSaveInstanceState(args);
+		}
 		
 		switch (possition) {
 		case 0:

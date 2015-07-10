@@ -23,7 +23,7 @@ import android.content.Context;
 import android.os.NetworkOnMainThreadException;
 import android.util.Log;
 public class MailReader {
-	private String TAG = "com.aesemailclient"; 
+	private String TAG = "mail.reader"; 
 	private Context context;
 	MailAuthenticator authenticator;
 	
@@ -33,7 +33,7 @@ public class MailReader {
 		authenticator = new MailAuthenticator("januar.srt@gmail.com", "ibrani11:6", "smtp.gmail.com", "465", "465");
 	}
 	
-	public Message[] getMail(Date date) {
+	public Message[] getMail(Date from, Date to) {
 		try {
 //			MailSSLSocketFactory sf = new MailSSLSocketFactory();
 //			sf.setTrustAllHosts(true);
@@ -64,13 +64,17 @@ public class MailReader {
 //            Message[] msg = inbox.getMessages(emailcount-9, emailcount);
             
             Calendar cal = Calendar.getInstance();
-            cal.setTime(date);
+            cal.setTime(from);
             cal.add(Calendar.DATE, 1);
-            Date now = cal.getTime();
-            cal.add(Calendar.DATE, -2);
-            SearchTerm olderThan = new ReceivedDateTerm(ComparisonTerm.LT, now);
-            SearchTerm newerThan = new ReceivedDateTerm(ComparisonTerm.GT, cal.getTime());
+            from = cal.getTime();
+            
+            cal.setTime(to);
+            cal.add(Calendar.DATE, 1);
+            to = cal.getTime();
+            SearchTerm olderThan = new ReceivedDateTerm(ComparisonTerm.LT, from);
+            SearchTerm newerThan = new ReceivedDateTerm(ComparisonTerm.GT, to);
             Message[] msg = inbox.search(new AndTerm(olderThan, newerThan));
+            Log.i(TAG, "from : " + from.toString() + " to : " + to.toString());
             Log.i(TAG, "length : " + msg.length);
             
             Message[] orderMsg = new Message[msg.length];
