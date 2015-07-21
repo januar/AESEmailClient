@@ -1,26 +1,31 @@
 package com.aesemailclient.db;
 
-public class InboxEntity {
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class InboxEntity implements Serializable{
 	private int id_inbox;
 	private String subject;
 	private String from;
 	private String to;
 	private String date;
 	private String content;
-	private Boolean isread;
+	private Long uuid;
+	private Boolean isdownload;
 	
 	public InboxEntity() {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public InboxEntity(int id, String subject, String from, String to, String date, String content, Boolean isread){
+	public InboxEntity(int id, String subject, String from, String to, String date, String content, Long uuid, Boolean isdownload){
 		this.id_inbox = id;
 		this.subject = subject;
 		this.from = from;
 		this.to = to;
 		this.date = date;
 		this.content = content;
-		this.isread = isread;
+		this.isdownload = isdownload;
+		this.uuid = uuid;
 	}
 	
 	// setter getter
@@ -66,11 +71,17 @@ public class InboxEntity {
 		return this.content;
 	}
 	
-	public void setRead(Boolean read) {
-		this.isread = read;
+	public void setDownload(Boolean download) {
+		this.isdownload = download;
 	}
-	public Boolean isRead() {
-		return this.isread;
+	public Boolean isDownload() {
+		return this.isdownload;
 	}
-
+	
+	public void setUUID(Long uuid) {
+		this.uuid = uuid;
+	}
+	public Long getUUID() {
+		return this.uuid;
+	}
 }

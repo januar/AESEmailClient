@@ -5,25 +5,18 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-
 import com.aesemailclient.CacheToFile;
 import com.aesemailclient.InboxFragment;
-import com.aesemailclient.InboxItem;
-import com.aesemailclient.R;
 import com.aesemailclient.db.InboxDataSource;
 import com.aesemailclient.db.InboxEntity;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
@@ -45,7 +38,7 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 		datasource = new InboxDataSource(this.activity);
 	}
 
-	@SuppressWarnings("deprecation")
+	@SuppressLint("SimpleDateFormat")
 	@Override
 	protected Boolean doInBackground(String... params) {
 		// TODO Auto-generated method stub
@@ -53,6 +46,8 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 		to = new Date();
 		Date tempDate = new Date();
 		Calendar cal = Calendar.getInstance();
+		Calendar calFrom = Calendar.getInstance();
+		Calendar calTo = Calendar.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat(InboxFragment.DATE_FORMAT);
 		type = params[1];
 		
@@ -72,7 +67,11 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 			if (date_last != "") {
 				try {
 					to = sdf.parse(date_last);
-					if(tempDate.getYear() == to.getYear() && tempDate.getMonth() == to.getMonth() && tempDate.getDay() == to.getDay())
+					calFrom.setTime(tempDate);
+					calTo.setTime(to);
+					if(calFrom.get(Calendar.YEAR) == calTo.get(Calendar.YEAR) && 
+							calFrom.get(Calendar.MONTH) == calTo.get(Calendar.MONTH) && 
+							calFrom.get(Calendar.DATE) == calTo.get(Calendar.DATE))
 					{
 						cal.setTime(tempDate);
 						cal.add(Calendar.DATE, 1);
@@ -85,7 +84,7 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 			}
 		}
 		
-		MailReader mailReader = new MailReader(activity);
+		MailReader mailReader = new MailReader();
 		Message[] msg = mailReader.getMail(tempDate, to);
 		if(msg == null)
 		{
@@ -102,7 +101,7 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 			} 
 			
 			if(msg == null){
-				this.message = "No data found";
+				this.message = MailReader.LOG;
 				return false;
 			}
 		}
@@ -112,9 +111,10 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 			for (int i = 0; i < msg.length; i++) {
 				Address[] addr = msg[i].getFrom();
 				Address[] addrTo = msg[i].getAllRecipients();
+				Long uuid = mailReader.inbox.getUID(msg[i]);
 				
 				InboxEntity item = new InboxEntity(0, msg[i].getSubject(), addr[0].toString(), 
-						addrTo[0].toString(), msg[i].getSentDate().toString(), mailReader.GetEmailContent(msg[i]), false);
+						addrTo[0].toString(), msg[i].getSentDate().toString(), "", uuid, false);
 				
 				String where = "subject = ? AND from_add = ? AND date = ?";
 				String[] whereArgs = new String[]{item.getSubject(), item.getFrom(), item.getDate()};
@@ -124,6 +124,7 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 					datasource.save(item);
 				}
 			}
+			fragment.dataList.clear();
 			fragment.dataList = datasource.getAll();
 			datasource.close();
 			return true;
@@ -139,6 +140,7 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 		return false;
 	}
 	
+	@SuppressLint("SimpleDateFormat")
 	@Override
 	protected void onPostExecute(Boolean result) {
 		// TODO Auto-generated method stub

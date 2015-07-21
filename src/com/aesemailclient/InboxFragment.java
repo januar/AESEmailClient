@@ -7,33 +7,32 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
 import me.maxwin.view.XListView;
 import me.maxwin.view.XListView.IXListViewListener;
-
 import com.aesemailclient.db.InboxDataSource;
 import com.aesemailclient.db.InboxEntity;
 import com.aesemailclient.email.MailReaderAsyncTask;
+import android.annotation.SuppressLint;
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.ListView;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ProgressBar;
 
 public class InboxFragment extends Fragment {
 	public static final String DATE_FORMAT = "dd-MM-yyyy HH:mm:ss";
+	public static final String INBOX_ENTITY = "inbox_entity";
 	
 	private View view;
 	private SwipeRefreshLayout swipeLayout;
 	private Fragment fragment;
-	private Bundle bundle;
 	
 	public XListView mInboxList;
 	public ProgressBar progressBar;
@@ -51,10 +50,10 @@ public class InboxFragment extends Fragment {
 		// TODO Auto-generated method stub
 		view = inflater.inflate(R.layout.fragment_inbox, container, false);
 		fragment = this;
-		bundle = savedInstanceState;
 		swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
 		swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 			
+			@SuppressLint("SimpleDateFormat")
 			@Override
 			public void onRefresh() {
 				// TODO Auto-generated method stub
@@ -88,17 +87,18 @@ public class InboxFragment extends Fragment {
 				
 			}
 			
+			@SuppressLint("SimpleDateFormat")
 			@Override
 			public void onLoadMore() {
 				// TODO Auto-generated method stub
 				if(!loading)
 				{
+					Calendar cal = Calendar.getInstance();
 					Date date = new Date();
 					SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
 					String time_text = CacheToFile.Read(getActivity(), CacheToFile.DATE_OLD);
 					if (time_text != "") {
 						try {
-							Calendar cal = Calendar.getInstance();
 							cal.setTime(sdf.parse(time_text));
 //							cal.add(Calendar.DATE, -1);
 							date = cal.getTime();
@@ -107,12 +107,26 @@ public class InboxFragment extends Fragment {
 							e.printStackTrace();
 						}
 					}
-					
 					new MailReaderAsyncTask(getActivity(), swipeLayout, fragment).execute(sdf.format(date), "before");
 				}
 			}
 		});
 		
+	    mInboxList.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				// TODO Auto-generated method stub
+				InboxEntity entity = adapter.getItem(position-1);
+				Intent intent = new Intent(getActivity(), ReadActivity.class);
+				Bundle bundle = new Bundle();
+				bundle.putSerializable(INBOX_ENTITY, (Serializable) entity);
+				intent.putExtras(bundle);
+				startActivity(intent);
+			}
+		});
+	    
 	    /*mInboxList.setOnScrollListener(new AbsListView.OnScrollListener() {
 			
 			@Override

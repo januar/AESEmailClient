@@ -16,7 +16,8 @@ public class InboxDataSource {
 	public static final String COLUMN_TO = "to_add";
 	public static final String COLUMN_DATE = "date";
 	public static final String COLUMN_CONTENT = "content";
-	public static final String COLUMN_ISREAD = "is_read";
+	public static final String COLUMN_ISDOWNLOAD = "is_download";
+	public static final String COLUMN_UUID = "uuid";
 	
 	private SQLiteDatabase database;
 	private MySQLiteHelper dbHelper;
@@ -82,6 +83,22 @@ public class InboxDataSource {
 		cursor.close();
 		return result;
 	}
+	
+	public InboxEntity getByUUID(Long UUID) {
+		InboxEntity result = null;
+
+		Cursor cursor = database.query(InboxDataSource.TABLE_NAME, allColumns,
+				COLUMN_UUID + " = ?", new String[] { String.valueOf(UUID) },
+				null, null, null);
+
+		cursor.moveToFirst();
+		if (!cursor.isAfterLast()) {
+			result = cursorToEntity(cursor);
+		}
+
+		cursor.close();
+		return result;
+	}
 
 	public InboxEntity getWhere(String where, String[] whereArgs) {
 		InboxEntity result = null;
@@ -108,7 +125,8 @@ public class InboxDataSource {
 		values.put(COLUMN_TO, inbox.getTo());
 		values.put(COLUMN_DATE, inbox.getDate());
 		values.put(COLUMN_CONTENT, inbox.getContent());
-		values.put(COLUMN_ISREAD, (inbox.isRead() == true) ? 1 : 0);
+		values.put(COLUMN_ISDOWNLOAD, (inbox.isDownload() == true) ? 1 : 0);
+		values.put(COLUMN_UUID, inbox.getUUID());
 		long insertId = database.insert(InboxDataSource.TABLE_NAME, null,
 				values);
 		Cursor cursor = database.query(InboxDataSource.TABLE_NAME, allColumns,
@@ -126,7 +144,7 @@ public class InboxDataSource {
 		values.put(COLUMN_TO, inbox.getTo());
 		values.put(COLUMN_DATE, inbox.getDate());
 		values.put(COLUMN_CONTENT, inbox.getContent());
-		values.put(COLUMN_ISREAD, (inbox.isRead() == true) ? 1 : 0);
+		values.put(COLUMN_ISDOWNLOAD, (inbox.isDownload() == true) ? 1 : 0);
 		database.update(InboxDataSource.TABLE_NAME, values, allColumns[0]
 				+ " = " + inbox.getId(), null);
 	}
@@ -140,8 +158,9 @@ public class InboxDataSource {
 		inbox.setTo(cursor.getString(cursor.getColumnIndex(COLUMN_TO)));
 		inbox.setContent(cursor.getString(cursor.getColumnIndex(COLUMN_CONTENT)));
 		inbox.setDate(cursor.getString(cursor.getColumnIndex(COLUMN_DATE)));
-		int read = cursor.getInt(cursor.getColumnIndex(COLUMN_ISREAD));
-		inbox.setRead((read == 0) ? false : true);
+		int read = cursor.getInt(cursor.getColumnIndex(COLUMN_ISDOWNLOAD));
+		inbox.setDownload((read == 0) ? false : true);
+		inbox.setUUID(cursor.getLong(cursor.getColumnIndex(COLUMN_UUID)));
 		return inbox;
 	}
 }

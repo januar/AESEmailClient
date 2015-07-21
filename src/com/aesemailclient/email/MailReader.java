@@ -1,11 +1,9 @@
 package com.aesemailclient.email;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
-
 import javax.mail.AuthenticationFailedException;
 import javax.mail.Folder;
 import javax.mail.Message;
@@ -17,96 +15,117 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.search.AndTerm;
 import javax.mail.search.ComparisonTerm;
+import javax.mail.search.MessageIDTerm;
 import javax.mail.search.ReceivedDateTerm;
 import javax.mail.search.SearchTerm;
-import android.content.Context;
+import com.sun.mail.imap.IMAPFolder;
 import android.os.NetworkOnMainThreadException;
 import android.util.Log;
+
 public class MailReader {
-	private String TAG = "mail.reader"; 
-	private Context context;
+	private String TAG = "mail.reader";
 	MailAuthenticator authenticator;
-	
-	public MailReader(Context context) {
-		// TODO Auto-generated constructor stub
-		this.context = context;
-		authenticator = new MailAuthenticator("januar.srt@gmail.com", "ibrani11:6", "smtp.gmail.com", "465", "465");
+
+	public IMAPFolder inbox;
+	public static String LOG;
+
+	public MailReader() {
+		authenticator = new MailAuthenticator("januar.srt@gmail.com",
+				"ibrani11:6", "smtp.gmail.com", "465", "465");
 	}
-	
-	public Message[] getMail(Date from, Date to) {
+
+	private void init() {
 		try {
-//			MailSSLSocketFactory sf = new MailSSLSocketFactory();
-//			sf.setTrustAllHosts(true);
-			
-			PasswordAuthentication auth = authenticator.getPasswordAuthentication();
+			LOG = "No found data.";
+			PasswordAuthentication auth = authenticator
+					.getPasswordAuthentication();
 			Properties props = System.getProperties();
+			props.setProperty("mail.imap.ssl.enable", "true");
 			Session session = Session.getInstance(props, null);
 			session.setDebug(true);
-			
+
 			Store store = session.getStore("imaps");
-//			props.put("mail.debug", true);
-//			props.put("mail.store.protocol", "imaps");
-//			props.setProperty("mail.imap.host", "imap.gmail.com");
-//			props.setProperty("mail.imap.port", "993");
-//			props.setProperty("mail.imap.connectiontimeout", "5000");
-//			props.setProperty("mail.imap.timeout", "5000");
-//			props.put("mail.imap.ssl.enable", "true");
-//			props.put("mail.protocol.ssl.trust", "imap.gmail.com");
-//			props.put("mail.imap.ssl.socketFactory", sf);
-//			props.setProperty("mail.imap.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-			
-            
-            store.connect("imap.gmail.com", -1, auth.getUserName(), auth.getPassword());
-            Folder inbox = store.getDefaultFolder();
-            inbox = inbox.getFolder("INBOX");
-            inbox.open(Folder.READ_WRITE);
-//            int emailcount = inbox.getMessageCount();
-//            Message[] msg = inbox.getMessages(emailcount-9, emailcount);
-            
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(from);
-            cal.add(Calendar.DATE, 1);
-            from = cal.getTime();
-            
-            cal.setTime(to);
-            cal.add(Calendar.DATE, 1);
-            to = cal.getTime();
-            SearchTerm olderThan = new ReceivedDateTerm(ComparisonTerm.LT, from);
-            SearchTerm newerThan = new ReceivedDateTerm(ComparisonTerm.GT, to);
-            Message[] msg = inbox.search(new AndTerm(olderThan, newerThan));
-            Log.i(TAG, "from : " + from.toString() + " to : " + to.toString());
-            Log.i(TAG, "length : " + msg.length);
-            
-            Message[] orderMsg = new Message[msg.length];
-            for (int i = 0; i < orderMsg.length; i++) {
-				orderMsg[i] = msg[(msg.length - 1) - i];
-			}
-            return orderMsg;
-		}catch(AuthenticationFailedException ae){
+			store.connect("imap.gmail.com", -1, auth.getUserName(),
+					auth.getPassword());
+
+			inbox = (IMAPFolder) store.getFolder("INBOX");
+			inbox.open(Folder.READ_WRITE);
+		} catch (AuthenticationFailedException ae) {
 			Log.e(TAG, ae.getMessage());
-		}catch(NetworkOnMainThreadException ne){
+			LOG = ae.getMessage();
+		} catch (NetworkOnMainThreadException ne) {
 			Log.e(TAG, ne.getMessage());
-		}
-		catch (RuntimeException re) {
+			LOG = ne.getMessage();
+		} catch (RuntimeException re) {
 			Log.e(TAG, re.getMessage());
-		}
-		catch (Exception e) {
+			LOG = re.getMessage();
+		} catch (Exception e) {
 			// TODO: handle exception
 			Log.e(TAG, e.getMessage());
+			LOG = e.getMessage();
+		}
+	}
+
+	public Message[] getMail(Date from, Date to) {
+		try {
+			init();
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(from);
+			cal.add(Calendar.DATE, 1);
+			from = cal.getTime();
+
+			cal.setTime(to);
+			cal.add(Calendar.DATE, 1);
+			to = cal.getTime();
+			SearchTerm olderThan = new ReceivedDateTerm(ComparisonTerm.LT, from);
+			SearchTerm newerThan = new ReceivedDateTerm(ComparisonTerm.GT, to);
+			Message[] msg = inbox.search(new AndTerm(olderThan, newerThan));
+			Log.i(TAG, "from : " + from.toString() + " to : " + to.toString());
+			Log.i(TAG, "length : " + msg.length);
+
+//			Message[] orderMsg = new Message[msg.length];
+//			for (int i = 0; i < orderMsg.length; i++) {
+//				orderMsg[i] = msg[(msg.length - 1) - i];
+//			}
+			return msg;
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			LOG = e.getMessage();
 		}
 		return null;
 	}
-	
+
+	public Message GetEmailByUUID(Long UUID) {
+		init();
+		Message msg = null;
+		try {
+			msg = inbox.getMessageByUID(UUID);
+			if (msg == null) {
+				SearchTerm term = new MessageIDTerm(String.valueOf(UUID));
+				Message[] message = inbox.search(term);
+				if (message.length > 0) {
+					msg = message[0];
+				}
+			}
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return msg;
+	}
+
 	public String GetEmailContent(Part p) {
 		String content = "";
-		
+
 		try {
 			if (p.isMimeType("text/plain") || p.isMimeType("text/html")) {
-				content = (String)p.getContent();
-			}else if (p.isMimeType("multipart/*")) {
+				content = (String) p.getContent();
+			} else if (p.isMimeType("multipart/*")) {
 				Multipart mp = (Multipart) p.getContent();
 				int count = mp.getCount();
-				for (int i = 0; i < count; i++){
+				for (int i = 0; i < count; i++) {
 					content = GetEmailContent(mp.getBodyPart(i));
 					if (content != "")
 						break;
@@ -119,7 +138,7 @@ public class MailReader {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return content;
 	}
 }

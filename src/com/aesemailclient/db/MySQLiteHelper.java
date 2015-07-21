@@ -11,13 +11,16 @@ import android.util.Log;
 
 public class MySQLiteHelper extends SQLiteOpenHelper {
 	public static Map<String, Map<String, String>> DATABASE_ENTITY;
-
+	
+	@SuppressWarnings("unused")
+	private Context context;
 	private static final String DATABASE_NAME = "aesemailclient.db";
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 7;
 
 	public MySQLiteHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 		initDatabase();
+		this.context = context;
 	}
 
 	public MySQLiteHelper(Context context, String name, CursorFactory factory,
@@ -37,7 +40,9 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		// TODO Auto-generated method stub
-		db.execSQL(DatabaseCreate());
+		for (String table_name : DATABASE_ENTITY.keySet()) {
+			db.execSQL(DatabaseCreate(table_name));
+		}
 	}
 
 	@Override
@@ -66,8 +71,9 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		inboxTable.put(InboxDataSource.COLUMN_TO, "text not null");
 		inboxTable.put(InboxDataSource.COLUMN_DATE, "text not null");
 		inboxTable.put(InboxDataSource.COLUMN_CONTENT, "text");
-		inboxTable.put(InboxDataSource.COLUMN_ISREAD, "integer");
-		DATABASE_ENTITY.put("t_inbox", inboxTable);
+		inboxTable.put(InboxDataSource.COLUMN_ISDOWNLOAD, "integer");
+		inboxTable.put(InboxDataSource.COLUMN_UUID, "integer");
+		DATABASE_ENTITY.put(InboxDataSource.TABLE_NAME, inboxTable);
 
 		// table user
 		Map<String, String> userTable = new HashMap<String, String>();
@@ -78,28 +84,25 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 
 		// table sent
 		Map<String, String> sentTable = new HashMap<String, String>();
-		sentTable.put("id_sent", "integer primary key autoincrement");
-		inboxTable.put("subject", "text");
-		inboxTable.put("from_add", "text not null");
-		inboxTable.put("to_add", "text not null");
-		inboxTable.put("date", "text not null");
-		DATABASE_ENTITY.put("t_sent", sentTable);
+		sentTable.put(SentDataSource.COLUMN_ID, "integer primary key autoincrement");
+		sentTable.put(SentDataSource.COLUMN_SUBJECT, "text");
+		sentTable.put(SentDataSource.COLUMN_FROM, "text not null");
+		sentTable.put(SentDataSource.COLUMN_TO, "text not null");
+		sentTable.put(SentDataSource.COLUMN_CONTENT, "text not null");
+		sentTable.put(SentDataSource.COLUMN_DATE, "text not null");
+		DATABASE_ENTITY.put(SentDataSource.TABLE_NAME, sentTable);
 	}
 	
-	private String DatabaseCreate()
+	private String DatabaseCreate(String table_name)
 	{
 		String query = "";
-		
-		for (String table_name : DATABASE_ENTITY.keySet()) {
-			String column = "";
-			Map<String, String> list_column = DATABASE_ENTITY.get(table_name);
-			for (String field : list_column.keySet()) {
-				column += String.format("%s %s, ", field, list_column.get(field));
-			}
-			column = column.trim().replaceAll(",$", "");
-			String create_query = String.format("create table %s (%s); ", table_name, column);
-			query += create_query;
+		String column = "";
+		Map<String, String> list_column = DATABASE_ENTITY.get(table_name);
+		for (String field : list_column.keySet()) {
+			column += String.format("%s %s, ", field, list_column.get(field));
 		}
+		column = column.trim().replaceAll(",$", "");
+		query = String.format("create table %s (%s); ", table_name, column);;
 		
 		return query;
 	}

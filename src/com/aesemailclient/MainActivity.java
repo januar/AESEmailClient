@@ -1,12 +1,16 @@
 package com.aesemailclient;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import android.os.Bundle;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
@@ -32,6 +36,7 @@ public class MainActivity extends Activity {
 	
 	Fragment mCurrent;
 
+	@SuppressLint("SimpleDateFormat")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -85,6 +90,11 @@ public class MainActivity extends Activity {
 			SelectItem(0);
 		}else{
 			args = savedInstanceState;
+		}
+		
+		if (CacheToFile.Read(this, CacheToFile.DATE_OLD) == "") {
+			SimpleDateFormat sdf = new SimpleDateFormat(InboxFragment.DATE_FORMAT);
+			CacheToFile.Write(this, CacheToFile.DATE_OLD, sdf.format(new Date()));
 		}
 	}
 
@@ -146,8 +156,15 @@ public class MainActivity extends Activity {
 		if (mDrawerToggle.onOptionsItemSelected(item)) {
 			return true;
 		}
-
-		return false;
+		
+		switch (item.getItemId()) {
+		case R.id.action_new_email:
+			Intent intent = new Intent(this, NewmailActivity.class);
+			startActivity(intent);
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override
