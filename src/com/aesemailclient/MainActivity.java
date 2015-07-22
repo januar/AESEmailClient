@@ -116,6 +116,9 @@ public class MainActivity extends Activity {
 		case 0:
 			fragment = new InboxFragment();
 			break;
+		case 1:
+			fragment = new SentFragment();
+			break;
 		default:
 			fragment = new FragmentOne();
 			args.putString(FragmentOne.ITEM_NAME, dataList.get(possition)

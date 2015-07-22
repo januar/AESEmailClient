@@ -100,9 +100,9 @@ public class ReadActivity extends Activity {
 	}
 	
 	@Override
-	protected void onStart() {
+	protected void onStop() {
 		// TODO Auto-generated method stub
-		super.onStart();
+		super.onStop();
 		datasource.close();
 	}
 	

@@ -52,7 +52,7 @@ public class SentDataSource {
 	public List<SentEntity> getAll() {
 		List<SentEntity> resultList = new ArrayList<SentEntity>();
 
-		Cursor cursor = database.query(InboxDataSource.TABLE_NAME, allColumns,
+		Cursor cursor = database.query(SentDataSource.TABLE_NAME, allColumns,
 				null, null, null, null, "datetime(date) DESC");
 
 		cursor.moveToFirst();
@@ -70,7 +70,7 @@ public class SentDataSource {
 	public SentEntity getById(int id) {
 		SentEntity result = null;
 
-		Cursor cursor = database.query(InboxDataSource.TABLE_NAME, allColumns,
+		Cursor cursor = database.query(SentDataSource.TABLE_NAME, allColumns,
 				COLUMN_ID + " = ?", new String[] { String.valueOf(id) }, null,
 				null, null);
 
