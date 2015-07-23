@@ -3,6 +3,7 @@ package com.aesemailclient;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.aesemailclient.EncryptDialog.EncryptDialogListener;
 import com.aesemailclient.db.SentDataSource;
 import com.aesemailclient.db.SentEntity;
 import com.aesemailclient.email.MailSender;
@@ -15,10 +16,11 @@ import android.app.ProgressDialog;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v4.app.NavUtils;
 
-public class NewmailActivity extends Activity {
+public class NewmailActivity extends Activity implements EncryptDialogListener {
 	
 	private SentDataSource datasource;
 	
@@ -97,6 +99,13 @@ public class NewmailActivity extends Activity {
 		}
 		
 		return super.onOptionsItemSelected(item);
+	}
+	
+	public void addEncrytedText(String ciphertext) {
+		String text = txt_content.getText().toString();
+		
+		text += "\n" + ciphertext;
+		txt_content.setText(text);
 	}
 	
 	private class SendAsyncTask extends AsyncTask<String, String, Boolean>

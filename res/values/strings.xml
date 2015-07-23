@@ -24,5 +24,8 @@
     <string name="ic_action_new_email">New Email</string>
     <string name="ic_action_send_now">Send now</string>
     <string name="txt_content">Compose email</string>
+    <string name="hint_plainttext">Plain text</string>
+    <string name="hint_secretkey">Secret key</string>
+    <string name="title_encrypt_dialog">Add Encrypt Text</string>
 
 </resources>
