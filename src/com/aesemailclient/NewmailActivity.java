@@ -91,6 +91,9 @@ public class NewmailActivity extends Activity {
 			
 			new SendAsyncTask(this).execute();
 			return true;
+		
+		case R.id.action_encrypt:
+			new EncryptDialog().show(getFragmentManager(), "TAG");
 		}
 		
 		return super.onOptionsItemSelected(item);
