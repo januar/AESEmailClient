@@ -9,7 +9,6 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
-
 import android.util.Base64;
 
 public class CryptoUtils {
@@ -23,15 +22,15 @@ public class CryptoUtils {
 		// TODO Auto-generated constructor stub
 	}
 	
-	private static String doCrypto(int cipherMode, String key, String text)
+	private static byte[] doCrypto(int cipherMode, String key, byte[] text)
 	{
 		try {
 			Key secretKey = new SecretKeySpec(key.getBytes(), ALGORITHM);
 			Cipher cipher = Cipher.getInstance(TRANSFORMATION);
 			cipher.init(cipherMode, secretKey);
-			byte[] result = cipher.doFinal(text.getBytes());
+			byte[] result = cipher.doFinal(text);
 			
-			return Base64.encodeToString(result, Base64.DEFAULT);
+			return result;
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -53,14 +52,30 @@ public class CryptoUtils {
 			e.printStackTrace();
 			LOG = e.getMessage();
 		}
-		return "";
+		return null;
 	}
 	
 	public static String encrypt(String key, String plaintext) {
-		return doCrypto(Cipher.ENCRYPT_MODE, key, plaintext);
+		try {
+			return Base64.encodeToString(doCrypto(Cipher.ENCRYPT_MODE, key, plaintext.getBytes("UTF-8")), Base64.DEFAULT);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			LOG = e.getMessage();
+		}
+		return "";
 	}
 	
 	public static String decrypt(String key, String ciphertext) {
-		return doCrypto(Cipher.DECRYPT_MODE, key, ciphertext);
+		byte[] cipher;
+		cipher = Base64.decode(ciphertext, Base64.DEFAULT);
+		try {
+			return new String(doCrypto(Cipher.DECRYPT_MODE, key, cipher), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			LOG = e.getMessage();
+		}
+		return "";
 	}
 }

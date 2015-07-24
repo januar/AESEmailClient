@@ -1,7 +1,11 @@
 package com.aesemailclient;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.mail.Message;
 
+import com.aesemailclient.DecryptDialog.DecryptDialogListener;
 import com.aesemailclient.db.InboxDataSource;
 import com.aesemailclient.db.InboxEntity;
 import com.aesemailclient.email.MailReader;
@@ -22,9 +26,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ReadActivity extends Activity {
+public class ReadActivity extends Activity implements DecryptDialogListener {
 	
 	private InboxDataSource datasource;
+	private String secretKey;
 	
 	TextView email_subject;
 	TextView email_from;
@@ -33,11 +38,15 @@ public class ReadActivity extends Activity {
 	ImageView email_avatar;
 	WebView email_content;
 	ProgressBar email_progress;
-
+	Matcher matcher;
+	
+	public static final String REGEX_PATTERN = "(<encrypt>)([a-zA-Z0-9\\W]*)(</encrypt>)";
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		datasource = new InboxDataSource(this);
+		secretKey = "";
 		
 		setContentView(R.layout.activity_read);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -71,10 +80,9 @@ public class ReadActivity extends Activity {
 		InboxEntity item = new InboxEntity();
 		item = datasource.getById(entity.getId());
 		if (!item.isDownload()) {
-			new GetEmailAsynTask(this).execute(entity.getUUID());
+			new GetEmailAsyncTask(this).execute(entity.getUUID());
 		}
-		
-		email_content.loadData(entity.getContent(), "text/html", null);
+		checkContent(item.getContent());
 	}
 
 	@Override
@@ -103,16 +111,35 @@ public class ReadActivity extends Activity {
 	protected void onStop() {
 		// TODO Auto-generated method stub
 		super.onStop();
-		datasource.close();
+//		datasource.close();
 	}
 	
-	private class GetEmailAsynTask extends AsyncTask<Long, String, Boolean>
+	private Boolean checkEncryptText(String content){
+		Pattern pattern = Pattern.compile(REGEX_PATTERN);
+		matcher = pattern.matcher(content);
+		return matcher.find();
+	}
+	
+	private void checkContent(String content){
+		if (checkEncryptText(content)) {
+			Bundle bundle = new Bundle();
+			bundle.putString("ciphertext", matcher.group(2));
+			bundle.putString("content", content);
+			DecryptDialog dialog = new DecryptDialog();
+			dialog.setArguments(bundle);
+			dialog.show(getFragmentManager(), "TAG");
+		}else{
+			email_content.loadData(content, "text/html", null);
+		}
+	}
+	
+	private class GetEmailAsyncTask extends AsyncTask<Long, String, Boolean>
 	{
 		private Activity activity;
 		private InboxEntity message;
 		private String Log;
 		
-		public GetEmailAsynTask(Activity activity) {
+		public GetEmailAsyncTask(Activity activity) {
 			this.activity = activity;
 		}
 
@@ -130,6 +157,7 @@ public class ReadActivity extends Activity {
 			message.setContent(mailReader.GetEmailContent(msg));
 			message.setDownload(true);
 			datasource.update(message);
+			datasource.close();
 			return true;
 		}
 		
@@ -147,13 +175,19 @@ public class ReadActivity extends Activity {
 			super.onPostExecute(result);
 			if(result)
 			{
-				email_content.loadData(message.getContent(), "text/html", null);
+//				email_content.loadData(message.getContent(), "text/html", null);
+				checkContent(message.getContent());
 			}else{
 				Toast.makeText(activity, Log, Toast.LENGTH_SHORT).show();
 			}
 			email_progress.setVisibility(View.INVISIBLE);
 			email_content.setVisibility(View.VISIBLE);
-			
 		}
+	}
+
+	@Override
+	public void loadContent(String ciphertext) {
+		// TODO Auto-generated method stub
+		email_content.loadData(ciphertext, "text/html", null);
 	}
 }

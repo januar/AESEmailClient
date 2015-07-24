@@ -7,21 +7,24 @@ import java.util.List;
 
 import android.os.Bundle;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-public class MainActivity extends Activity {
+@SuppressWarnings("deprecation")
+public class MainActivity extends ActionBarActivity {
 
 	private Bundle args;
 	private DrawerLayout mDrawerLayout;
@@ -64,10 +67,13 @@ public class MainActivity extends Activity {
 
 		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
-		getActionBar().setDisplayHomeAsUpEnabled(true);
-		getActionBar().setHomeButtonEnabled(true);
-
-		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
+		/*getActionBar().setDisplayHomeAsUpEnabled(true);
+		getActionBar().setHomeButtonEnabled(true);*/
+		
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
+		
+		/*mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
 				R.drawable.ic_drawer, R.string.drawer_open,
 				R.string.drawer_close) {
 			public void onDrawerClosed(View view) {
@@ -81,7 +87,9 @@ public class MainActivity extends Activity {
 				invalidateOptionsMenu(); // creates call to
 											// onPrepareOptionsMenu()
 			}
-		};
+		};*/
+		
+		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.app_name, R.string.app_name);
 
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 
@@ -96,6 +104,9 @@ public class MainActivity extends Activity {
 			SimpleDateFormat sdf = new SimpleDateFormat(InboxFragment.DATE_FORMAT);
 			CacheToFile.Write(this, CacheToFile.DATE_OLD, sdf.format(new Date()));
 		}
+		
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setHomeButtonEnabled(true);
 	}
 
 	@Override
@@ -142,7 +153,8 @@ public class MainActivity extends Activity {
 	@Override
 	public void setTitle(CharSequence title) {
 		mTitle = title;
-		getActionBar().setTitle(mTitle);
+//		getActionBar().setTitle(mTitle);
+		getSupportActionBar().setTitle(mTitle);
 	}
 
 	@Override
@@ -175,6 +187,16 @@ public class MainActivity extends Activity {
 		super.onConfigurationChanged(newConfig);
 		// Pass any configuration change to the drawer toggles
 		mDrawerToggle.onConfigurationChanged(newConfig);
+	}
+	
+	@Override
+	public void onBackPressed() {
+		// TODO Auto-generated method stub
+		if(mDrawerLayout.isDrawerOpen(Gravity.START|Gravity.LEFT)){
+	        mDrawerLayout.closeDrawers();
+	        return;
+	    }
+		super.onBackPressed();
 	}
 
 	private class DrawerItemClickListener implements

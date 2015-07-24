@@ -30,7 +30,7 @@ public class MailReader {
 	public static String LOG;
 
 	public MailReader() {
-		authenticator = new MailAuthenticator("januar.srt@gmail.com",
+		authenticator = new MailAuthenticator("ini7rait@gmail.com",
 				"ibrani11:6", "smtp.gmail.com", "465", "465");
 	}
 
@@ -92,6 +92,10 @@ public class MailReader {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			LOG = e.getMessage();
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			LOG = e.getMessage();
 		}
 		return null;
 	}
@@ -111,6 +115,11 @@ public class MailReader {
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			LOG = e.getMessage();
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			LOG = e.getMessage();
 		}
 		
 		return msg;

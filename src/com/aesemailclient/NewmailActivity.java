@@ -16,7 +16,6 @@ import android.app.ProgressDialog;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v4.app.NavUtils;
 
@@ -36,7 +35,7 @@ public class NewmailActivity extends Activity implements EncryptDialogListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_newmail);
 		// Show the Up button in the action bar.
-		setupActionBar();
+//		setupActionBar();
 		datasource = new SentDataSource(this);
 		datasource.open();
 		
@@ -55,9 +54,8 @@ public class NewmailActivity extends Activity implements EncryptDialogListener {
 	 * Set up the {@link android.app.ActionBar}.
 	 */
 	private void setupActionBar() {
-
 		getActionBar().setDisplayHomeAsUpEnabled(true);
-
+//		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
 
 	@Override

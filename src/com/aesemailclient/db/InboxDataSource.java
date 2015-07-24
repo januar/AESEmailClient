@@ -145,7 +145,7 @@ public class InboxDataSource {
 		values.put(COLUMN_DATE, inbox.getDate());
 		values.put(COLUMN_CONTENT, inbox.getContent());
 		values.put(COLUMN_ISDOWNLOAD, (inbox.isDownload() == true) ? 1 : 0);
-		database.update(InboxDataSource.TABLE_NAME, values, allColumns[0]
+		database.update(InboxDataSource.TABLE_NAME, values, InboxDataSource.COLUMN_ID
 				+ " = " + inbox.getId(), null);
 	}
 

@@ -12,7 +12,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/icon_green"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
@@ -27,6 +27,7 @@
         <activity
             android:name="com.aesemailclient.ReadActivity"
             android:label="@string/title_activity_read"
+            android:theme="@style/CustomActionBarTheme"
             android:parentActivityName="com.aesemailclient.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -35,6 +36,7 @@
         <activity
             android:name="com.aesemailclient.NewmailActivity"
             android:label="@string/title_activity_newmail"
+            android:theme="@style/CustomActionBarTheme"
             android:parentActivityName="com.aesemailclient.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
