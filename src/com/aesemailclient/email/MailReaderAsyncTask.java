@@ -5,13 +5,18 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+
 import com.aesemailclient.CacheToFile;
 import com.aesemailclient.InboxFragment;
 import com.aesemailclient.db.InboxDataSource;
 import com.aesemailclient.db.InboxEntity;
+import com.aesemailclient.db.UserDataSource;
+import com.aesemailclient.db.UserEntity;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
@@ -25,6 +30,7 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 	private Date to;
 	private String message;
 	private InboxDataSource datasource;
+	private UserDataSource userDatasource;
 	Activity activity;
 	SwipeRefreshLayout swipeLayout;
 	InboxFragment fragment;
@@ -36,6 +42,7 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 		this.swipeLayout = swipeLayout;
 		this.fragment = (InboxFragment)fragment;
 		datasource = new InboxDataSource(this.activity);
+		userDatasource = new UserDataSource(this.activity);
 	}
 
 	@SuppressLint("SimpleDateFormat")
@@ -62,7 +69,7 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 		to = cal.getTime();
 		tempDate = from;
 		
-		if(type == "after"){
+		if(type.equals("after")){
 			String date_last = CacheToFile.Read(activity, CacheToFile.DATE_LAST);
 			if (date_last != "") {
 				try {
@@ -84,12 +91,16 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 			}
 		}
 		
-		MailReader mailReader = new MailReader();
+		userDatasource.open();
+		UserEntity user = userDatasource.getUser();
+		userDatasource.close();
+		MailReader mailReader = new MailReader(user);
 		Message[] msg = mailReader.getMail(tempDate, to);
+		this.message = MailReader.LOG;
 		if(msg == null)
 		{
 			int maxloop = 0;
-			if (type == "before") {
+			if (type.equals("before")) {
 //				cal.setTime(from);
 				while(msg == null && maxloop < 3)
 				{
@@ -101,7 +112,6 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 			} 
 			
 			if(msg == null){
-				this.message = MailReader.LOG;
 				return false;
 			}
 		}

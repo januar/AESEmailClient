@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.aesemailclient.db.UserDataSource;
+
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.Fragment;
@@ -57,8 +59,8 @@ public class MainActivity extends ActionBarActivity {
 		dataList.add(new DrawerItem("Inbox", R.drawable.ic_action_email));
 		dataList.add(new DrawerItem("Sent Item", R.drawable.ic_action_send_now));
 		dataList.add(new DrawerItem("About", R.drawable.ic_action_about));
-		dataList.add(new DrawerItem("Settings", R.drawable.ic_action_settings));
-		dataList.add(new DrawerItem("Help", R.drawable.ic_action_help));
+//		dataList.add(new DrawerItem("Settings", R.drawable.ic_action_settings));
+		dataList.add(new DrawerItem("Sign out", R.drawable.ic_action_help));
 
 		adapter = new CustomDrawerAdapter(this, R.layout.custom_drawer_item,
 				dataList);
@@ -118,17 +120,27 @@ public class MainActivity extends ActionBarActivity {
 
 	public void SelectItem(int possition) {
 		Fragment fragment = null;
-//		Bundle args = new Bundle();
+		Boolean isFinished = false;
 		if (mCurrent != null) {
 			mCurrent.onSaveInstanceState(args);
 		}
 		
 		switch (possition) {
-		case 0:
+		case 0: // inbox
 			fragment = new InboxFragment();
 			break;
-		case 1:
+		case 1: // sent
 			fragment = new SentFragment();
+			break;
+		case 3: // sign out
+			UserDataSource userDatasource= new UserDataSource(this);
+			userDatasource.open();
+			userDatasource.delete();
+			userDatasource.close();
+			Intent intent = new Intent(this, LoginActivity.class);
+			startActivity(intent);
+			finish();
+			isFinished = true;
 			break;
 		default:
 			fragment = new FragmentOne();
@@ -139,14 +151,16 @@ public class MainActivity extends ActionBarActivity {
 			break;
 		}
 
-		fragment.setArguments(args);
-		FragmentManager frgManager = getFragmentManager();
-		frgManager.beginTransaction().replace(R.id.content_frame, fragment)
-				.commit();
-		mCurrent = fragment;
-		mDrawerList.setItemChecked(possition, true);
-		setTitle(dataList.get(possition).getItemName());
-		mDrawerLayout.closeDrawer(mDrawerList);
+		if (!isFinished) {
+			fragment.setArguments(args);
+			FragmentManager frgManager = getFragmentManager();
+			frgManager.beginTransaction().replace(R.id.content_frame, fragment)
+					.commit();
+			mCurrent = fragment;
+			mDrawerList.setItemChecked(possition, true);
+			setTitle(dataList.get(possition).getItemName());
+			mDrawerLayout.closeDrawer(mDrawerList);
+		}
 
 	}
 

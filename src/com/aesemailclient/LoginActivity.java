@@ -5,8 +5,8 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
-import android.content.ContentResolver;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
@@ -25,9 +25,12 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
+import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
+import com.aesemailclient.db.UserDataSource;
+import com.aesemailclient.db.UserEntity;
+import com.aesemailclient.email.MailReader;
 
 /**
  * A login screen that offers login via email/password.
@@ -51,11 +54,22 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 	private View mProgressView;
 	private View mLoginFormView;
 
+	private UserDataSource userDatasource;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
+
+		userDatasource = new UserDataSource(this);
+		userDatasource.open();
+		if (userDatasource.getUser() != null) {
+			Intent intent = new Intent(getApplication(), MainActivity.class);
+			startActivity(intent);
+			userDatasource.close();
+//			finish();
+		}
 
 		// Set up the login form.
 		mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
@@ -113,7 +127,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 		View focusView = null;
 
 		// Check for a valid password, if the user entered one.
-		if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+		if (TextUtils.isEmpty(password) && !isPasswordValid(password)) {
 			mPasswordView.setError(getString(R.string.error_invalid_password));
 			focusView = mPasswordView;
 			cancel = true;
@@ -128,6 +142,10 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 			mEmailView.setError(getString(R.string.error_invalid_email));
 			focusView = mEmailView;
 			cancel = true;
+		}else if (checkEmailType(email) == "") {
+			cancel = true;
+			focusView = mEmailView;
+			mEmailView.setError(getString(R.string.error_invalid_email));
 		}
 
 		if (cancel) {
@@ -247,6 +265,18 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 		mEmailView.setAdapter(adapter);
 	}
 
+	private String checkEmailType(String email) {
+		String email_type = "";
+		if (email.matches("(\\W|^)[\\w.+\\-]*@gmail\\.com(\\W|$)")) {
+			email_type = "gmail";
+		} else if (email.matches("(\\W|^)[\\w.+\\-]*@yahoo\\.com(\\W|$)")
+				|| email.matches("(\\W|^)[\\w.+\\-]*@yahoo\\.co\\.id(\\W|$)")) {
+			email_type = "yahoo";
+		}
+
+		return email_type;
+	}
+
 	/**
 	 * Represents an asynchronous login/registration task used to authenticate
 	 * the user.
@@ -266,35 +296,40 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 			// TODO: attempt authentication against a network service.
 
 			try {
-				// Simulate network access.
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-				return false;
-			}
-
-			for (String credential : DUMMY_CREDENTIALS) {
-				String[] pieces = credential.split(":");
-				if (pieces[0].equals(mEmail)) {
-					// Account exists, return true if the password matches.
-					return pieces[1].equals(mPassword);
+				userDatasource.open();
+				UserEntity user = new UserEntity(mEmail, mPassword,
+						checkEmailType(mEmail));
+				MailReader mailReader = new MailReader(user);
+				if (mailReader.login()) {
+					userDatasource.save(user);
+					return true;
 				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 
 			// TODO: register the new account here.
-			return true;
+			return false;
 		}
 
 		@Override
 		protected void onPostExecute(final Boolean success) {
 			mAuthTask = null;
-			showProgress(false);
 
 			if (success) {
-				finish();
+				Intent intent = new Intent(getApplication(), MainActivity.class);
+				startActivity(intent);
+//				finish();
 			} else {
-				mPasswordView
-						.setError(getString(R.string.error_incorrect_password));
-				mPasswordView.requestFocus();
+				if (MailReader.LOG.equals("No found data.")) {
+					mPasswordView
+							.setError(getString(R.string.error_incorrect_password));
+					mPasswordView.requestFocus();
+				} else {
+					Toast.makeText(getApplication(), MailReader.LOG,
+							Toast.LENGTH_SHORT).show();
+				}
+				showProgress(false);
 			}
 		}
 

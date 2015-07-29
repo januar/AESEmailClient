@@ -6,6 +6,8 @@ import java.util.Date;
 import com.aesemailclient.EncryptDialog.EncryptDialogListener;
 import com.aesemailclient.db.SentDataSource;
 import com.aesemailclient.db.SentEntity;
+import com.aesemailclient.db.UserDataSource;
+import com.aesemailclient.db.UserEntity;
 import com.aesemailclient.email.MailSender;
 
 import android.os.AsyncTask;
@@ -25,6 +27,8 @@ import android.support.v7.widget.Toolbar;
 public class NewmailActivity extends AppCompatActivity implements EncryptDialogListener {
 	
 	private SentDataSource datasource;
+	private UserDataSource userDatasource;
+	private UserEntity user;
 	
 	private EditText txt_from;
 	private EditText txt_to;
@@ -41,9 +45,13 @@ public class NewmailActivity extends AppCompatActivity implements EncryptDialogL
 		setupActionBar();
 		datasource = new SentDataSource(this);
 		datasource.open();
+		userDatasource = new UserDataSource(this);
+		userDatasource.open();
+		user = userDatasource.getUser();
+		userDatasource.close();
 		
 		txt_from = (EditText)findViewById(R.id.txt_from);
-		txt_from.setText("januar.srt@gmail.com");
+		txt_from.setText(user.getEmail());
 		txt_from.setKeyListener(null);
 		
 		txt_to = (EditText) findViewById(R.id.txt_to);
@@ -130,7 +138,7 @@ public class NewmailActivity extends AppCompatActivity implements EncryptDialogL
 			String subject = txt_subject.getText().toString();
 			String content = txt_content.getText().toString();
 			
-			MailSender sender = new MailSender();
+			MailSender sender = new MailSender(user);
 			SimpleDateFormat sdf = new SimpleDateFormat(InboxFragment.DATE_FORMAT);
 			String date = sdf.format(new Date());
 			if (sender.send(from, to, subject, content)) {

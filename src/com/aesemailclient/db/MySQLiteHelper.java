@@ -77,10 +77,10 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 
 		// table user
 		Map<String, String> userTable = new HashMap<String, String>();
-		userTable.put("email", "text not null");
-		userTable.put("password", "text not null");
-		userTable.put("email_type", "text not null");
-		DATABASE_ENTITY.put("t_user", userTable);
+		userTable.put(UserDataSource.COLUMN_EMAIL, "text not null");
+		userTable.put(UserDataSource.COLUMN_PASSWORD, "text not null");
+		userTable.put(UserDataSource.COLUMN_EMAIL_TYPE, "text not null");
+		DATABASE_ENTITY.put(UserDataSource.TABLE_NAME, userTable);
 
 		// table sent
 		Map<String, String> sentTable = new HashMap<String, String>();

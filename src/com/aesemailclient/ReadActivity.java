@@ -8,6 +8,8 @@ import javax.mail.Message;
 import com.aesemailclient.DecryptDialog.DecryptDialogListener;
 import com.aesemailclient.db.InboxDataSource;
 import com.aesemailclient.db.InboxEntity;
+import com.aesemailclient.db.UserDataSource;
+import com.aesemailclient.db.UserEntity;
 import com.aesemailclient.email.MailReader;
 import com.aesemailclient.textdrawable.TextDrawable;
 import com.aesemailclient.textdrawable.util.ColorGenerator;
@@ -32,6 +34,7 @@ import android.widget.Toast;
 public class ReadActivity extends AppCompatActivity implements DecryptDialogListener {
 	
 	private InboxDataSource datasource;
+	private UserDataSource userDatasource;
 	private String secretKey;
 	
 	TextView email_subject;
@@ -49,6 +52,7 @@ public class ReadActivity extends AppCompatActivity implements DecryptDialogList
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		datasource = new InboxDataSource(this);
+		userDatasource = new UserDataSource(this);
 		secretKey = "";
 		
 		setContentView(R.layout.activity_read);
@@ -160,7 +164,10 @@ public class ReadActivity extends AppCompatActivity implements DecryptDialogList
 		@Override
 		protected Boolean doInBackground(Long... params) {
 			// TODO Auto-generated method stub
-			MailReader mailReader = new MailReader();
+			userDatasource.open();
+			UserEntity user = userDatasource.getUser();
+			userDatasource.close();
+			MailReader mailReader = new MailReader(user);
 			Message msg = mailReader.GetEmailByUUID(params[0]);
 			if (msg == null) {
 				Log = MailReader.LOG;

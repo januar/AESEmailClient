@@ -1,27 +1,30 @@
 package com.aesemailclient.email;
 
 import java.util.Properties;
+
 import javax.mail.*;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+
+import com.aesemailclient.db.UserEntity;
 
 public class MailSender {
 	MailAuthenticator authenticator;
 	
 	public static String LOG;
 
-	public MailSender() {
+	public MailSender(UserEntity user) {
 		// TODO Auto-generated constructor stub
 		
-		authenticator = new MailAuthenticator("januar.srt@gmail.com", "ibrani11:6", "smtp.gmail.com", "465", "465");
+		authenticator = new MailAuthenticator(user.getEmail(), user.getPassword(), MailAuthenticator.getHostByEmailType(user.getEmailType(), "smtp"), "465", "465");
 	}
 	
 	public Boolean send(String from, String to, String subject, String content) {
 		try {
 			LOG = "Unknow error.";
 			Properties props = System.getProperties();
-			props.put("mail.smtp.host", "smtp.gmail.com");
+			props.put("mail.smtp.host", authenticator.getHost());
 			props.put("mail.smtp.socketFactory.port", "465");
 			props.put("mail.smtp.socketFactory.class",
 					"javax.net.ssl.SSLSocketFactory");

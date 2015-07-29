@@ -7,11 +7,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
 import me.maxwin.view.XListView;
 import me.maxwin.view.XListView.IXListViewListener;
+
 import com.aesemailclient.db.InboxDataSource;
 import com.aesemailclient.db.InboxEntity;
 import com.aesemailclient.email.MailReaderAsyncTask;
+
 import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Intent;
@@ -44,6 +47,7 @@ public class InboxFragment extends Fragment {
 		// TODO Auto-generated constructor stub
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {

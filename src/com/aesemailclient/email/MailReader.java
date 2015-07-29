@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
+
 import javax.mail.AuthenticationFailedException;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
+import javax.mail.NoSuchProviderException;
 import javax.mail.Part;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
@@ -18,7 +20,10 @@ import javax.mail.search.ComparisonTerm;
 import javax.mail.search.MessageIDTerm;
 import javax.mail.search.ReceivedDateTerm;
 import javax.mail.search.SearchTerm;
+
+import com.aesemailclient.db.UserEntity;
 import com.sun.mail.imap.IMAPFolder;
+
 import android.os.NetworkOnMainThreadException;
 import android.util.Log;
 
@@ -29,9 +34,10 @@ public class MailReader {
 	public IMAPFolder inbox;
 	public static String LOG;
 
-	public MailReader() {
-		authenticator = new MailAuthenticator("ini7rait@gmail.com",
-				"ibrani11:6", "smtp.gmail.com", "465", "465");
+	public MailReader(UserEntity user) {
+		authenticator = new MailAuthenticator(user.getEmail(),
+				user.getPassword(), MailAuthenticator.getHostByEmailType(
+						user.getEmailType(), "imap"), "465", "465");
 	}
 
 	private void init() {
@@ -45,7 +51,7 @@ public class MailReader {
 			session.setDebug(true);
 
 			Store store = session.getStore("imaps");
-			store.connect("imap.gmail.com", -1, auth.getUserName(),
+			store.connect(authenticator.getHost(), -1, auth.getUserName(),
 					auth.getPassword());
 
 			inbox = (IMAPFolder) store.getFolder("INBOX");
@@ -66,6 +72,39 @@ public class MailReader {
 		}
 	}
 
+	public Boolean login() {
+
+		try {
+			LOG = "No found data.";
+			PasswordAuthentication auth = authenticator
+					.getPasswordAuthentication();
+			Properties props = System.getProperties();
+			props.setProperty("mail.imap.ssl.enable", "true");
+			Session session = Session.getInstance(props, null);
+			session.setDebug(true);
+
+			Store store;
+			store = session.getStore("imaps");
+			store.connect(authenticator.getHost(), -1, auth.getUserName(),
+					auth.getPassword());
+			return true;
+		} catch (NoSuchProviderException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			LOG = e.getMessage();
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			LOG = e.getMessage();
+		}catch (Exception e) {
+			// TODO: handle exception
+			Log.e(TAG, e.getMessage());
+			LOG = e.getMessage();
+		}
+
+		return false;
+	}
+
 	public Message[] getMail(Date from, Date to) {
 		try {
 			init();
@@ -83,16 +122,16 @@ public class MailReader {
 			Log.i(TAG, "from : " + from.toString() + " to : " + to.toString());
 			Log.i(TAG, "length : " + msg.length);
 
-//			Message[] orderMsg = new Message[msg.length];
-//			for (int i = 0; i < orderMsg.length; i++) {
-//				orderMsg[i] = msg[(msg.length - 1) - i];
-//			}
+			// Message[] orderMsg = new Message[msg.length];
+			// for (int i = 0; i < orderMsg.length; i++) {
+			// orderMsg[i] = msg[(msg.length - 1) - i];
+			// }
 			return msg;
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			LOG = e.getMessage();
-		}catch (Exception e) {
+		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
 			LOG = e.getMessage();
@@ -116,12 +155,12 @@ public class MailReader {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			LOG = e.getMessage();
-		}catch (Exception e) {
+		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
 			LOG = e.getMessage();
 		}
-		
+
 		return msg;
 	}
 
