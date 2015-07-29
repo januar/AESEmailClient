@@ -1,4 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_parent_view"
     android:layout_width="match_parent"
@@ -6,15 +7,7 @@
     android:fitsSystemWindows="true"
     android:orientation="vertical" >
 
-    <android.support.v7.widget.Toolbar
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/main_color"
-        android:minHeight="?attr/actionBarSize"
-        app:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
+    <include layout="@layout/toolbar"/>
 
     <android.support.v4.widget.DrawerLayout
         android:id="@+id/drawer_layout"
@@ -26,7 +19,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
         
-		<!-- <include layout="@layout/header"/> -->
         <ListView
             android:id="@+id/left_drawer"
             android:layout_width="240dp"
@@ -36,7 +28,7 @@
             android:choiceMode="singleChoice"
             android:divider="@android:color/transparent"
             android:dividerHeight="0dp" />
-        
+    
     </android.support.v4.widget.DrawerLayout>
 
 </LinearLayout>

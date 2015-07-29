@@ -15,14 +15,17 @@
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+        <item name="colorPrimary">@color/PrimaryColor</item>
+        <item name="colorPrimaryDark">@color/PrimaryDarkColor</item>
+        <item name="colorAccent">@color/AccentColor</item>
     </style>
 	
     <style name="CustomActionBarTheme"
            parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- <item name="android:actionBarStyle">@style/ActionBarStyle</item> -->
+       	<item name="android:actionBarStyle">@style/ActionBarStyle</item>
 
         <!-- Support library compatibility -->
-        <!-- <item name="actionBarStyle">@style/ActionBarStyle</item> -->
+        <item name="actionBarStyle">@style/ActionBarStyle</item>
     </style>
     
     <style name="ActionBarStyle" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">

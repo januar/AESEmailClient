@@ -18,8 +18,11 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 
-public class NewmailActivity extends Activity implements EncryptDialogListener {
+public class NewmailActivity extends AppCompatActivity implements EncryptDialogListener {
 	
 	private SentDataSource datasource;
 	
@@ -35,7 +38,7 @@ public class NewmailActivity extends Activity implements EncryptDialogListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_newmail);
 		// Show the Up button in the action bar.
-//		setupActionBar();
+		setupActionBar();
 		datasource = new SentDataSource(this);
 		datasource.open();
 		
@@ -54,8 +57,12 @@ public class NewmailActivity extends Activity implements EncryptDialogListener {
 	 * Set up the {@link android.app.ActionBar}.
 	 */
 	private void setupActionBar() {
-		getActionBar().setDisplayHomeAsUpEnabled(true);
-//		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
+		
+		ActionBar bar = getSupportActionBar();
+		int change = bar.getDisplayOptions() ^ ActionBar.DISPLAY_HOME_AS_UP;
+        bar.setDisplayOptions(change, ActionBar.DISPLAY_HOME_AS_UP);
 	}
 
 	@Override

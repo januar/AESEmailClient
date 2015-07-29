@@ -1,8 +1,9 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
 	
     <item 
         android:id="@+id/action_new_email"
         android:icon="@drawable/ic_action_new_email"
-        android:showAsAction="ifRoom"
+        app:showAsAction="always"
         android:title="@string/ic_action_new_email"/>
 </menu>

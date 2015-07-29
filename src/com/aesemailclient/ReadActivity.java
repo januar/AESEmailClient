@@ -17,6 +17,9 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,7 +29,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ReadActivity extends Activity implements DecryptDialogListener {
+public class ReadActivity extends AppCompatActivity implements DecryptDialogListener {
 	
 	private InboxDataSource datasource;
 	private String secretKey;
@@ -49,8 +52,7 @@ public class ReadActivity extends Activity implements DecryptDialogListener {
 		secretKey = "";
 		
 		setContentView(R.layout.activity_read);
-		getActionBar().setDisplayHomeAsUpEnabled(true);
-		
+		setupActionBar();
 		Intent intent = this.getIntent();
 		Bundle bundle = intent.getExtras();
 		InboxEntity entity = (InboxEntity) bundle.getSerializable(InboxFragment.INBOX_ENTITY);
@@ -83,6 +85,18 @@ public class ReadActivity extends Activity implements DecryptDialogListener {
 			new GetEmailAsyncTask(this).execute(entity.getUUID());
 		}
 		checkContent(item.getContent());
+	}
+	
+	/**
+	 * Set up the {@link android.app.ActionBar}.
+	 */
+	private void setupActionBar() {
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
+		
+		ActionBar bar = getSupportActionBar();
+		int change = bar.getDisplayOptions() ^ ActionBar.DISPLAY_HOME_AS_UP;
+        bar.setDisplayOptions(change, ActionBar.DISPLAY_HOME_AS_UP);
 	}
 
 	@Override
