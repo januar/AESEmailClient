@@ -138,6 +138,49 @@ public class MailReader {
 		}
 		return null;
 	}
+	
+	public Message[] getMail(Date date, int comparison_term){
+		try {
+			init();
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(date);
+			cal.add(Calendar.DATE, 1);
+			date = cal.getTime();
+
+			SearchTerm term = new ReceivedDateTerm(comparison_term, date);
+			Message[] msg = inbox.search(term);
+			Log.i(TAG, "date : " + date.toString());
+
+			return msg;
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			LOG = e.getMessage();
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			LOG = e.getMessage();
+		}
+		return null;
+	}
+	
+	public Message[] getMail() {
+		try {
+			init();
+			int email_count = inbox.getMessageCount();
+			Message[] msg = inbox.getMessages(email_count-10, email_count);
+			return msg;
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			LOG = e.getMessage();
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			LOG = e.getMessage();
+		}
+		return null;
+	}
 
 	public Message GetEmailByUUID(Long UUID) {
 		init();
