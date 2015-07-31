@@ -22,9 +22,10 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.widget.Toast;
 
-public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
+public class MailReaderAsyncTask extends AsyncTask<Integer, String, Boolean> {
 	
 	private Date from;
 	private Date to;
@@ -34,7 +35,7 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 	Activity activity;
 	SwipeRefreshLayout swipeLayout;
 	InboxFragment fragment;
-	String type;
+	int type;
 	
 	public MailReaderAsyncTask(Activity _activity, SwipeRefreshLayout swipeLayout, Fragment fragment) {
 		// TODO Auto-generated constructor stub
@@ -47,9 +48,9 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 
 	@SuppressLint("SimpleDateFormat")
 	@Override
-	protected Boolean doInBackground(String... params) {
+	protected Boolean doInBackground(Integer... params) {
 		// TODO Auto-generated method stub
-		from = new Date();
+		/*from = new Date();
 		to = new Date();
 		Date tempDate = new Date();
 		Calendar cal = Calendar.getInstance();
@@ -67,9 +68,9 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 		cal.setTime(from);
 		cal.add(Calendar.DATE, -1);
 		to = cal.getTime();
-		tempDate = from;
+		tempDate = from;*/
 		
-		if(type.equals("after")){
+		/*if(type.equals("after")){
 			String date_last = CacheToFile.Read(activity, CacheToFile.DATE_LAST);
 			if (date_last != "") {
 				try {
@@ -89,42 +90,41 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 					e.printStackTrace();
 				}
 			}
+		}*/
+		
+		long UUID = 0;
+		type = params[0];
+		datasource.open();
+		if (type == MailReader.NEW) {
+			InboxEntity item = datasource.getWhere(null, null, InboxDataSource.COLUMN_UUID + " DESC");
+			UUID = item.getUUID();
+		}else if (type == MailReader.OLD) {
+			InboxEntity item = datasource.getWhere(null, null, InboxDataSource.COLUMN_UUID + " ASC");
+			UUID = item.getUUID();
 		}
 		
 		userDatasource.open();
 		UserEntity user = userDatasource.getUser();
 		userDatasource.close();
 		MailReader mailReader = new MailReader(user);
-		Message[] msg = mailReader.getMail(tempDate, to);
+		Message[] msg = mailReader.getMail(UUID, type);
 		this.message = MailReader.LOG;
 		if(msg == null)
 		{
-			int maxloop = 0;
-			if (type.equals("before")) {
-//				cal.setTime(from);
-				while(msg == null && maxloop < 3)
-				{
-					cal.add(Calendar.DATE, -1);
-					to = cal.getTime();
-					msg = mailReader.getMail(from, to);
-					maxloop++;
-				}
-			} 
-			
-			if(msg == null){
-				return false;
-			}
+			return false;
 		}
+		
 		try{
 			fragment.dataList = new ArrayList<InboxEntity>();
-			datasource.open();
+			SimpleDateFormat sdf = new SimpleDateFormat(InboxDataSource.DATE_FORMAT);
 			for (int i = 0; i < msg.length; i++) {
 				Address[] addr = msg[i].getFrom();
 				Address[] addrTo = msg[i].getAllRecipients();
 				Long uuid = mailReader.inbox.getUID(msg[i]);
+				Date date = new Date(msg[i].getSentDate().toString());
 				
 				InboxEntity item = new InboxEntity(0, msg[i].getSubject(), addr[0].toString(), 
-						addrTo[0].toString(), msg[i].getSentDate().toString(), "", uuid, false);
+						addrTo[0].toString(), sdf.format(date), "", uuid, false);
 				
 				String where = "subject = ? AND from_add = ? AND date = ?";
 				String[] whereArgs = new String[]{item.getSubject(), item.getFrom(), item.getDate()};
@@ -155,7 +155,6 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 	protected void onPostExecute(Boolean result) {
 		// TODO Auto-generated method stub
 		super.onPostExecute(result);
-		SimpleDateFormat sdf = new SimpleDateFormat(InboxFragment.DATE_FORMAT);
 		if(result)
 		{
 			fragment.adapter.clear();
@@ -164,13 +163,11 @@ public class MailReaderAsyncTask extends AsyncTask<String, String, Boolean> {
 		}else{
 			Toast.makeText(this.activity, message, Toast.LENGTH_SHORT).show();
 		}
-		if(type == "before")
+		if(type == MailReader.OLD)
 		{
 			fragment.mInboxList.stopLoadMore();
-			CacheToFile.Write(this.activity, CacheToFile.DATE_OLD, sdf.format(to));
 		}else{
 			swipeLayout.setRefreshing(false);
-			CacheToFile.Write(this.activity, CacheToFile.DATE_LAST, sdf.format(from));
 		}
 		fragment.loading = false;
 	}

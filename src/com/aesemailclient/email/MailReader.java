@@ -15,6 +15,7 @@ import javax.mail.Part;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Store;
+import javax.mail.UIDFolder;
 import javax.mail.search.AndTerm;
 import javax.mail.search.ComparisonTerm;
 import javax.mail.search.MessageIDTerm;
@@ -33,6 +34,8 @@ public class MailReader {
 
 	public IMAPFolder inbox;
 	public static String LOG;
+	public static final int NEW = 1;
+	public static final int OLD = 2;
 
 	public MailReader(UserEntity user) {
 		authenticator = new MailAuthenticator(user.getEmail(),
@@ -139,17 +142,23 @@ public class MailReader {
 		return null;
 	}
 	
-	public Message[] getMail(Date date, int comparison_term){
+	public Message[] getMail(Long UUID, int status){
 		try {
 			init();
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(date);
-			cal.add(Calendar.DATE, 1);
-			date = cal.getTime();
-
-			SearchTerm term = new ReceivedDateTerm(comparison_term, date);
-			Message[] msg = inbox.search(term);
-			Log.i(TAG, "date : " + date.toString());
+			Message [] msg = null;
+			
+			Log.i(TAG, "UUID : " + UUID + " status: " + status);
+			if (status == MailReader.OLD) {
+				msg = inbox.getMessagesByUID(UUID - 10, UUID-1);
+			}else if(status == MailReader.NEW)
+			{
+				Message last = inbox.getMessage(inbox.getMessageCount());
+				Long newUUID = inbox.getUID(last);
+				Log.i(TAG, "newUUID : " + newUUID);
+				if (newUUID > UUID) {
+					msg = inbox.getMessagesByUID(UUID+1, newUUID);
+				}
+			}
 
 			return msg;
 		} catch (MessagingException e) {
@@ -168,7 +177,7 @@ public class MailReader {
 		try {
 			init();
 			int email_count = inbox.getMessageCount();
-			Message[] msg = inbox.getMessages(email_count-10, email_count);
+			Message[] msg = inbox.getMessages(email_count-9, email_count);
 			return msg;
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
@@ -211,7 +220,7 @@ public class MailReader {
 		String content = "";
 
 		try {
-			if (p.isMimeType("text/plain") || p.isMimeType("text/html")) {
+			/*if (p.isMimeType("text/*")) {
 				content = (String) p.getContent();
 			} else if (p.isMimeType("multipart/*")) {
 				Multipart mp = (Multipart) p.getContent();
@@ -221,7 +230,41 @@ public class MailReader {
 					if (content != "")
 						break;
 				}
-			}
+			}*/
+			
+			if (p.isMimeType("text/*")) {
+	            String s = (String)p.getContent();
+//	            textIsHtml = p.isMimeType("text/html");
+	            return s;
+	        }
+
+	        if (p.isMimeType("multipart/alternative")) {
+	            // prefer html text over plain text
+	            Multipart mp = (Multipart)p.getContent();
+	            String text = null;
+	            for (int i = 0; i < mp.getCount(); i++) {
+	                Part bp = mp.getBodyPart(i);
+	                if (bp.isMimeType("text/plain")) {
+	                    if (text == null)
+	                        text = GetEmailContent(bp);
+	                    continue;
+	                } else if (bp.isMimeType("text/html")) {
+	                    String s = GetEmailContent(bp);
+	                    if (s != null)
+	                        return s;
+	                } else {
+	                    return GetEmailContent(bp);
+	                }
+	            }
+	            return text;
+	        } else if (p.isMimeType("multipart/*")) {
+	            Multipart mp = (Multipart)p.getContent();
+	            for (int i = 0; i < mp.getCount(); i++) {
+	                String s = GetEmailContent(mp.getBodyPart(i));
+	                if (s != null)
+	                    return s;
+	            }
+	        }
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

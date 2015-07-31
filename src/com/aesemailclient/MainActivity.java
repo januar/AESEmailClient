@@ -94,6 +94,7 @@ public class MainActivity extends ActionBarActivity {
 		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.app_name, R.string.app_name);
 
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
+		
 
 		if (savedInstanceState == null) {
 			args = new Bundle();
@@ -102,10 +103,10 @@ public class MainActivity extends ActionBarActivity {
 			args = savedInstanceState;
 		}
 		
-		if (CacheToFile.Read(this, CacheToFile.DATE_OLD) == "") {
+		/*if (CacheToFile.Read(this, CacheToFile.DATE_OLD) == "") {
 			SimpleDateFormat sdf = new SimpleDateFormat(InboxFragment.DATE_FORMAT);
 			CacheToFile.Write(this, CacheToFile.DATE_OLD, sdf.format(new Date()));
-		}
+		}*/
 		
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setHomeButtonEnabled(true);
@@ -218,8 +219,7 @@ public class MainActivity extends ActionBarActivity {
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
-			if (mCurrent != null) {
-			}
+			view.setSelected(true);
 			SelectItem(position);
 		}
 	}

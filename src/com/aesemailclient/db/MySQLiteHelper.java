@@ -57,6 +57,15 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 		}
 		onCreate(db);
 	}
+	
+	public void drop(SQLiteDatabase db) {
+		Log.w(MySQLiteHelper.class.getName(),
+		        "Drop table which will destroy all old data");
+		
+		for (String table_name : DATABASE_ENTITY.keySet()) {
+			db.execSQL("DELETE FROM " + table_name);
+		}
+	}
 
 	private void initDatabase() {
 		/* membuat bentuk dari databse yang akan digenerate */

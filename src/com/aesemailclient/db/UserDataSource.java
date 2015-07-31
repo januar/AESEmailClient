@@ -59,7 +59,8 @@ public class UserDataSource {
 	}
 	
 	public void delete() {
-		database.execSQL("DELETE FROM " + TABLE_NAME);
+		/*database.execSQL("DELETE FROM " + TABLE_NAME);*/
+		dbHelper.drop(database);
 	}
 	
 	public void save(UserEntity user) {

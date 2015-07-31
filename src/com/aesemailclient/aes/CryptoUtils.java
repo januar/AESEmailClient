@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -51,12 +52,21 @@ public class CryptoUtils {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			LOG = e.getMessage();
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			LOG = e.getMessage();
 		}
 		return null;
 	}
 	
 	public static String encrypt(String key, String plaintext) {
 		try {
+//			byte[] cipher_byte = doCrypto(Cipher.ENCRYPT_MODE, key, plaintext.getBytes("UTF-8"));
+			byte[] cipher_byte = AES.encrypt(plaintext.getBytes("UTF-8"), key.getBytes());
+			if (cipher_byte == null) {
+				return "";
+			}
 			return Base64.encodeToString(doCrypto(Cipher.ENCRYPT_MODE, key, plaintext.getBytes("UTF-8")), Base64.DEFAULT);
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
@@ -70,6 +80,11 @@ public class CryptoUtils {
 		byte[] cipher;
 		cipher = Base64.decode(ciphertext, Base64.DEFAULT);
 		try {
+//			byte[] plaintext = doCrypto(Cipher.DECRYPT_MODE, key, cipher);
+			byte[] plaintext = AES.decrypt(cipher, key.getBytes());
+			if(plaintext == null)
+				return "";
+			
 			return new String(doCrypto(Cipher.DECRYPT_MODE, key, cipher), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block

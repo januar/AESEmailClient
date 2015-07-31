@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    
-	<LinearLayout
+    android:layout_height="match_parent" >
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center" >
@@ -18,22 +18,23 @@
                 android:id="@+id/sent_progressbar"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:indeterminateTint="@color/PrimaryColor"
+                android:indeterminateTintMode="src_in"
                 android:visibility="gone" />
-
         </LinearLayout>
-
     </LinearLayout>
-    
-	<android.support.v4.widget.SwipeRefreshLayout
+
+    <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_sent_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="visible" >
-	    
-	    <ListView
-	        android:id="@+id/sent_list"
-	        android:layout_width="match_parent"
-	        android:layout_height="228dp" >
-	    </ListView>
-	</android.support.v4.widget.SwipeRefreshLayout>
+
+        <ListView
+            android:id="@+id/sent_list"
+            android:layout_width="match_parent"
+            android:layout_height="228dp" >
+        </ListView>
+    </android.support.v4.widget.SwipeRefreshLayout>
+
 </RelativeLayout>

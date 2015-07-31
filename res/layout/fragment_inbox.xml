@@ -19,29 +19,31 @@
                 android:id="@+id/inbox_progressbar"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:indeterminateTint="@color/PrimaryColor"
+                android:indeterminateTintMode="src_in"
                 android:visibility="gone" />
-
         </LinearLayout>
-
     </LinearLayout>
-    
+
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="visible" >
 
-    <!-- <ListView
+        <!--
+    <ListView
         android:id="@+id/inbox_list"
         android:layout_width="match_parent"
         android:layout_height="228dp" >
-    </ListView> -->
-    
-    <me.maxwin.view.XListView 
-        android:id="@+id/inbox_list"
-        android:layout_width="match_parent"
-        android:layout_height="228dp">
-        
-    </me.maxwin.view.XListView>
-</android.support.v4.widget.SwipeRefreshLayout>
+    </ListView>
+        -->
+
+        <me.maxwin.view.XListView
+            android:id="@+id/inbox_list"
+            android:layout_width="match_parent"
+            android:layout_height="228dp" >
+        </me.maxwin.view.XListView>
+    </android.support.v4.widget.SwipeRefreshLayout>
+
 </RelativeLayout>

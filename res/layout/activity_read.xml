@@ -3,40 +3,42 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingBottom="1dp"
     android:paddingLeft="0dp"
     android:paddingRight="0dp"
     android:paddingTop="0dp"
     tools:context=".ReadActivity" >
-    
-    <include layout="@layout/toolbar"/>
+
+    <include layout="@layout/toolbar" />
 
     <TextView
         android:id="@+id/email_subject"
+        style="@style/CustomFont.Large"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:text="@string/hello_world"
-        style="@style/CustomFont.Large"/>
+        android:text="@string/hello_world" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
         android:background="@drawable/custom_border"
         android:orientation="vertical"
-        android:padding="10dp" >
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="10dp" >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp" >
-            
-            <ImageView 
+
+            <ImageView
                 android:id="@+id/email_avatar"
                 android:layout_width="50dp"
-                android:layout_height="50dp"/>
+                android:layout_height="50dp" />
 
             <LinearLayout
                 android:layout_width="fill_parent"
@@ -46,34 +48,32 @@
 
                 <TextView
                     android:id="@+id/email_from"
+                    style="@style/CustomFont.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="TextView" 
-                    style="@style/CustomFont.Medium"/>
+                    android:text="TextView" />
 
                 <TextView
                     android:id="@+id/email_to"
+                    style="@style/CustomFont.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Small Text"
-                    android:textAppearance="?android:attr/textAppearanceSmall" 
-                    style="@style/CustomFont.Small"/>
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
 
                 <TextView
                     android:id="@+id/email_date"
+                    style="@style/CustomFont.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Small Text"
-                    android:textAppearance="?android:attr/textAppearanceSmall" 
-                    style="@style/CustomFont.Small"/>
-
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
             </LinearLayout>
-
         </LinearLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="match_parent" >
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -91,19 +91,17 @@
                         android:id="@+id/email_progress"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:indeterminateTint="@color/PrimaryColor"
+                        android:indeterminateTintMode="src_in"
                         android:visibility="gone" />
-
                 </LinearLayout>
-
             </LinearLayout>
 
             <WebView
                 android:id="@+id/email_content"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
-
         </RelativeLayout>
-
     </LinearLayout>
 
 </LinearLayout>

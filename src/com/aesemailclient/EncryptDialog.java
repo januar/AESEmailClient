@@ -65,7 +65,7 @@ public class EncryptDialog extends DialogFragment {
 							.findViewById(R.id.txt_secretkey);
 					String key = txt_secretkey.getText().toString();
 					String plaintext = txt_plaintext.getText().toString();
-					if (key.length() == 0 && plaintext.length() == 0) {
+					if (key.length() == 0 || plaintext.length() == 0) {
 						Toast.makeText(getActivity(), "Please insert key and plaintext", Toast.LENGTH_SHORT).show();
 					} else {
 						String cipher = CryptoUtils.encrypt(key, plaintext);

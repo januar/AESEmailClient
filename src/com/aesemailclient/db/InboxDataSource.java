@@ -19,6 +19,8 @@ public class InboxDataSource {
 	public static final String COLUMN_ISDOWNLOAD = "is_download";
 	public static final String COLUMN_UUID = "uuid";
 	
+	public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+	
 	private SQLiteDatabase database;
 	private MySQLiteHelper dbHelper;
 	// column dalam tabel inbox
@@ -102,9 +104,21 @@ public class InboxDataSource {
 
 	public InboxEntity getWhere(String where, String[] whereArgs) {
 		InboxEntity result = null;
+		result = getWhere(where, whereArgs, null, null, null);
+		return result;
+	}
+	
+	public InboxEntity getWhere(String where, String[] whereArgs, String orderBy) {
+		InboxEntity result = null;
+		result = getWhere(where, whereArgs, null, null, orderBy);
+		return result;
+	}
+	
+	public InboxEntity getWhere(String where, String[] whereArgs,
+			String groupBy, String having, String orderBy) {
+		InboxEntity result = null;
 
-		Cursor cursor = database.query(InboxDataSource.TABLE_NAME, allColumns,
-				where, whereArgs, null, null, null);
+		Cursor cursor = database.query(InboxDataSource.TABLE_NAME, allColumns, where, whereArgs, groupBy, having, orderBy);
 
 		cursor.moveToFirst();
 		if (!cursor.isAfterLast()) {

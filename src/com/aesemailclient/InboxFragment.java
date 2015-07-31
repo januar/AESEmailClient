@@ -8,11 +8,17 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import javax.mail.Address;
+import javax.mail.Message;
+
 import me.maxwin.view.XListView;
 import me.maxwin.view.XListView.IXListViewListener;
 
 import com.aesemailclient.db.InboxDataSource;
 import com.aesemailclient.db.InboxEntity;
+import com.aesemailclient.db.UserDataSource;
+import com.aesemailclient.db.UserEntity;
+import com.aesemailclient.email.MailReader;
 import com.aesemailclient.email.MailReaderAsyncTask;
 
 import android.annotation.SuppressLint;
@@ -62,8 +68,7 @@ public class InboxFragment extends Fragment {
 			public void onRefresh() {
 				// TODO Auto-generated method stub
 				if (!loading) {
-					String date = new SimpleDateFormat(DATE_FORMAT).format(Calendar.getInstance().getTime());
-					new MailReaderAsyncTask(getActivity(), swipeLayout, fragment).execute(date,"after");
+					new MailReaderAsyncTask(getActivity(), swipeLayout, fragment).execute(MailReader.NEW);
 				}
 			}
 		});
@@ -97,21 +102,7 @@ public class InboxFragment extends Fragment {
 				// TODO Auto-generated method stub
 				if(!loading)
 				{
-					Calendar cal = Calendar.getInstance();
-					Date date = new Date();
-					SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-					String time_text = CacheToFile.Read(getActivity(), CacheToFile.DATE_OLD);
-					if (time_text != "") {
-						try {
-							cal.setTime(sdf.parse(time_text));
-//							cal.add(Calendar.DATE, -1);
-							date = cal.getTime();
-						} catch (ParseException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-					new MailReaderAsyncTask(getActivity(), swipeLayout, fragment).execute(sdf.format(date), "before");
+					new MailReaderAsyncTask(getActivity(), swipeLayout, fragment).execute(MailReader.OLD);
 				}
 			}
 		});
@@ -227,10 +218,32 @@ public class InboxFragment extends Fragment {
 			try {
 				datasource.open();
 				dataList = datasource.getAll();
-				datasource.close();
-				if (dataList == null) {
-					return false;
+				if (dataList.size() == 0) {
+					UserDataSource userDatasource = new UserDataSource(getActivity());
+					userDatasource.open();
+					UserEntity user = userDatasource.getUser();
+					userDatasource.close();
+					MailReader mailReader = new MailReader(user);
+					Message[] msg = mailReader.getMail();
+					if (msg == null) {
+						return false;
+					}else{
+						SimpleDateFormat sdf = new SimpleDateFormat(InboxDataSource.DATE_FORMAT);
+						for (int i = 0; i < msg.length; i++) {
+							Address[] addr = msg[i].getFrom();
+							Address[] addrTo = msg[i].getAllRecipients();
+							Long uuid = mailReader.inbox.getUID(msg[i]);
+							Date date = new Date(msg[i].getSentDate().toString());
+							
+							InboxEntity item = new InboxEntity(0, msg[i].getSubject(), addr[0].toString(), 
+									addrTo[0].toString(), sdf.format(date), "", uuid, false);
+							
+							datasource.save(item);
+						}
+						dataList = datasource.getAll();
+					}
 				}
+				datasource.close();
 				return true;
 			} catch (Exception e) {
 				// TODO: handle exception
