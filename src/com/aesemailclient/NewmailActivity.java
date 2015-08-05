@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.aesemailclient.EncryptDialog.EncryptDialogListener;
+import com.aesemailclient.db.InboxEntity;
 import com.aesemailclient.db.SentDataSource;
 import com.aesemailclient.db.SentEntity;
 import com.aesemailclient.db.UserDataSource;
@@ -15,6 +16,7 @@ import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -24,17 +26,18 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-public class NewmailActivity extends AppCompatActivity implements EncryptDialogListener {
-	
+public class NewmailActivity extends AppCompatActivity implements
+		EncryptDialogListener {
+
 	private SentDataSource datasource;
 	private UserDataSource userDatasource;
 	private UserEntity user;
-	
+
 	private EditText txt_from;
 	private EditText txt_to;
 	private EditText txt_subject;
 	private EditText txt_content;
-	
+
 	ProgressDialog progress;
 
 	@Override
@@ -49,16 +52,32 @@ public class NewmailActivity extends AppCompatActivity implements EncryptDialogL
 		userDatasource.open();
 		user = userDatasource.getUser();
 		userDatasource.close();
-		
-		txt_from = (EditText)findViewById(R.id.txt_from);
+
+		txt_from = (EditText) findViewById(R.id.txt_from);
 		txt_from.setText(user.getEmail());
 		txt_from.setKeyListener(null);
-		
+
 		txt_to = (EditText) findViewById(R.id.txt_to);
 		txt_subject = (EditText) findViewById(R.id.txt_subject);
 		txt_content = (EditText) findViewById(R.id.txt_content);
-		
+
 		progress = new ProgressDialog(this);
+
+		try {
+			Intent intent = this.getIntent();
+			Bundle bundle = intent.getExtras();
+			InboxEntity entity = (InboxEntity) bundle
+					.getSerializable(InboxFragment.INBOX_ENTITY);
+			if (entity != null) {
+				txt_to.setText(entity.getFrom());
+				txt_subject.setText("Re: " + entity.getSubject());
+				if (entity.getSubject().startsWith("Re:")) {
+					txt_subject.setText(entity.getSubject());
+				}
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 	/**
@@ -67,10 +86,10 @@ public class NewmailActivity extends AppCompatActivity implements EncryptDialogL
 	private void setupActionBar() {
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
-		
+
 		ActionBar bar = getSupportActionBar();
 		int change = bar.getDisplayOptions() ^ ActionBar.DISPLAY_HOME_AS_UP;
-        bar.setDisplayOptions(change, ActionBar.DISPLAY_HOME_AS_UP);
+		bar.setDisplayOptions(change, ActionBar.DISPLAY_HOME_AS_UP);
 	}
 
 	@Override
@@ -94,38 +113,37 @@ public class NewmailActivity extends AppCompatActivity implements EncryptDialogL
 			NavUtils.navigateUpFromSameTask(this);
 			return true;
 		case R.id.action_send_now:
-			if(txt_to.getText().toString().trim() == "")
-			{
-				Toast.makeText(this, "Please insert email address of reciver!", Toast.LENGTH_SHORT).show();
+			if (txt_to.getText().toString().trim() == "") {
+				Toast.makeText(this, "Please insert email address of reciver!",
+						Toast.LENGTH_SHORT).show();
 				return false;
-			}else if(txt_subject.getText().toString().trim() == "")
-			{
-				Toast.makeText(this, "Please insert email subject!", Toast.LENGTH_SHORT).show();
+			} else if (txt_subject.getText().toString().trim() == "") {
+				Toast.makeText(this, "Please insert email subject!",
+						Toast.LENGTH_SHORT).show();
 				return false;
 			}
-			
+
 			new SendAsyncTask(this).execute();
 			return true;
-		
+
 		case R.id.action_encrypt:
 			new EncryptDialog().show(getFragmentManager(), "TAG");
 		}
-		
+
 		return super.onOptionsItemSelected(item);
 	}
-	
+
 	public void addEncrytedText(String ciphertext) {
 		String text = txt_content.getText().toString();
-		
-		text += "\n" + ciphertext;
+
+		text += ciphertext;
 		txt_content.setText(text);
 	}
-	
-	private class SendAsyncTask extends AsyncTask<String, String, Boolean>
-	{
+
+	private class SendAsyncTask extends AsyncTask<String, String, Boolean> {
 		private Activity activity;
-		
-		public SendAsyncTask(Activity activity){
+
+		public SendAsyncTask(Activity activity) {
 			this.activity = activity;
 		}
 
@@ -137,13 +155,15 @@ public class NewmailActivity extends AppCompatActivity implements EncryptDialogL
 			String to = txt_to.getText().toString().trim();
 			String subject = txt_subject.getText().toString();
 			String content = txt_content.getText().toString();
-			
+
 			MailSender sender = new MailSender(user);
-			SimpleDateFormat sdf = new SimpleDateFormat(InboxFragment.DATE_FORMAT);
+			SimpleDateFormat sdf = new SimpleDateFormat(
+					InboxFragment.DATE_FORMAT);
 			String date = sdf.format(new Date());
 			if (sender.send(from, to, subject, content)) {
 				try {
-					SentEntity sent = new SentEntity(subject, from, to, content, date);
+					SentEntity sent = new SentEntity(subject, from, to,
+							content, date);
 					datasource.save(sent);
 					datasource.close();
 					return true;
@@ -156,7 +176,7 @@ public class NewmailActivity extends AppCompatActivity implements EncryptDialogL
 				return false;
 			}
 		}
-		
+
 		@Override
 		protected void onPreExecute() {
 			// TODO Auto-generated method stub
@@ -166,7 +186,7 @@ public class NewmailActivity extends AppCompatActivity implements EncryptDialogL
 			progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 			progress.show();
 		}
-		
+
 		@Override
 		protected void onPostExecute(Boolean result) {
 			// TODO Auto-generated method stub
@@ -175,7 +195,8 @@ public class NewmailActivity extends AppCompatActivity implements EncryptDialogL
 			if (result) {
 				activity.finish();
 			} else {
-				Toast.makeText(activity, MailSender.LOG, Toast.LENGTH_SHORT).show();
+				Toast.makeText(activity, MailSender.LOG, Toast.LENGTH_SHORT)
+						.show();
 			}
 		}
 	}

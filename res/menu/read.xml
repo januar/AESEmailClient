@@ -7,10 +7,10 @@
         app:showAsAction="always"
         android:title="@string/ic_action_reply"/>
     
-    <item 
+    <!-- <item 
         android:id="@+id/action_reply_all"
         android:icon="@drawable/ic_action_reply_all"
         app:showAsAction="always"
-        android:title="@string/ic_action_reply_all"/>
+        android:title="@string/ic_action_reply_all"/> -->
 
 </menu>

@@ -278,7 +278,12 @@ public class AES {
 		return tmp;
 	}
 	
-	public static byte[] encrypt(byte[] in,byte[] key){
+	public static byte[] encrypt(byte[] in,byte[] key)throws InvalidKeyException{
+		
+		if(key.length != 16)
+		{
+			throw new InvalidKeyException("Key length must 128 bits");
+		}
 		
 		Nb = 4;
 		Nk = key.length/4;
@@ -323,11 +328,15 @@ public class AES {
 		return tmp;
 	}
 	
-	public static byte[] decrypt(byte[] in,byte[] key){
+	public static byte[] decrypt(byte[] in,byte[] key)throws InvalidKeyException{
 		int i;
 		byte[] tmp = new byte[in.length];
 		byte[] bloc = new byte[16];
 		
+		if(key.length != 16)
+		{
+			throw new InvalidKeyException("Key length must 128 bits");
+		}
 		
 		Nb = 4;
 		Nk = key.length/4;

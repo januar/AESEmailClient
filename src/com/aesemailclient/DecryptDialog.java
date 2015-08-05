@@ -78,7 +78,16 @@ public class DecryptDialog extends DialogFragment {
 					if (secret_key.length() == 0) {
 						Toast.makeText(getActivity(), "Please insert key and plaintext", Toast.LENGTH_SHORT).show();
 					} else {
-						replaceEncryptText();
+						//replaceEncryptText();
+						String plaintext = CryptoUtils.decrypt(secret_key, cipher_text);
+						if (plaintext != "") {
+							DecryptDialogListener activity = (DecryptDialogListener) getActivity();
+							dismiss();
+							activity.loadContent(plaintext, content);
+						}else{
+							Toast.makeText(getActivity(), CryptoUtils.LOG,
+									Toast.LENGTH_SHORT).show();
+						}
 					}
 				}
 			});
@@ -99,9 +108,6 @@ public class DecryptDialog extends DialogFragment {
 			matcher.reset(content);
 			int index = 0;
 			while (matcher.find()) {
-//				System.out.print("Start index: " + matcher.start());
-//				System.out.print(" End index: " + matcher.end() + " ");
-//				System.out.println(matcher.group());
 				cipher = CryptoUtils.decrypt(secret_key, matcher.group(2));
 				if (cipher != "") {
 					result += content.substring(index, index + (matcher.start() - index)) + cipher;
@@ -113,12 +119,13 @@ public class DecryptDialog extends DialogFragment {
 			}
 			result += content.substring(index);
 			DecryptDialogListener activity = (DecryptDialogListener) getActivity();
-			activity.loadContent(result);
+//			activity.loadContent(result);
 			dismiss();
 		}
 	}
 
 	public interface DecryptDialogListener {
-		void loadContent(String ciphertext);
+		void loadContent(String plaintext, String content);
+		void loadContent(String content);
 	}
 }

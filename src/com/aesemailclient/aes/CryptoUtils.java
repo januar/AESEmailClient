@@ -67,8 +67,12 @@ public class CryptoUtils {
 			if (cipher_byte == null) {
 				return "";
 			}
-			return Base64.encodeToString(doCrypto(Cipher.ENCRYPT_MODE, key, plaintext.getBytes("UTF-8")), Base64.DEFAULT);
+			return Base64.encodeToString(cipher_byte, Base64.DEFAULT);
 		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			LOG = e.getMessage();
+		} catch (com.aesemailclient.aes.InvalidKeyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			LOG = e.getMessage();
@@ -85,8 +89,12 @@ public class CryptoUtils {
 			if(plaintext == null)
 				return "";
 			
-			return new String(doCrypto(Cipher.DECRYPT_MODE, key, cipher), "UTF-8");
+			return new String(plaintext, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			LOG = e.getMessage();
+		} catch (com.aesemailclient.aes.InvalidKeyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			LOG = e.getMessage();

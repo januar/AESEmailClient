@@ -1,5 +1,6 @@
 package com.aesemailclient;
 
+import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,7 +36,11 @@ public class ReadActivity extends AppCompatActivity implements DecryptDialogList
 	
 	private InboxDataSource datasource;
 	private UserDataSource userDatasource;
-	private String secretKey;
+	private InboxEntity entity;
+	private int index;
+	private int start;
+	private int end;
+	private String result;
 	
 	TextView email_subject;
 	TextView email_from;
@@ -44,22 +49,22 @@ public class ReadActivity extends AppCompatActivity implements DecryptDialogList
 	ImageView email_avatar;
 	WebView email_content;
 	ProgressBar email_progress;
-	Matcher matcher;
 	
-	public static final String REGEX_PATTERN = "(<encrypt>)([a-zA-Z0-9\\W]*)(</encrypt>)";
+	public static final String REGEX_PATTERN = "<encrypt>([a-zA-Z0-9\\W]*?)</encrypt>";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		datasource = new InboxDataSource(this);
 		userDatasource = new UserDataSource(this);
-		secretKey = "";
+		result = "";
+		index = 0;
 		
 		setContentView(R.layout.activity_read);
 		setupActionBar();
 		Intent intent = this.getIntent();
 		Bundle bundle = intent.getExtras();
-		InboxEntity entity = (InboxEntity) bundle.getSerializable(InboxFragment.INBOX_ENTITY);
+		entity = (InboxEntity) bundle.getSerializable(InboxFragment.INBOX_ENTITY);
 		
 		email_subject = (TextView)findViewById(R.id.email_subject);
 		email_from = (TextView)findViewById(R.id.email_from);
@@ -118,6 +123,12 @@ public class ReadActivity extends AppCompatActivity implements DecryptDialogList
 		case android.R.id.home:
 			NavUtils.navigateUpFromSameTask(this);
 			return true;
+		case R.id.action_reply:
+			Intent intent = new Intent(this, NewmailActivity.class);
+			Bundle bundle = new Bundle();
+			bundle.putSerializable(InboxFragment.INBOX_ENTITY, (Serializable) entity);
+			intent.putExtras(bundle);
+			startActivity(intent);
 		default:
 			break;
 		}
@@ -129,23 +140,19 @@ public class ReadActivity extends AppCompatActivity implements DecryptDialogList
 	protected void onStop() {
 		// TODO Auto-generated method stub
 		super.onStop();
-//		datasource.close();
-	}
-	
-	private Boolean checkEncryptText(String content){
-		Pattern pattern = Pattern.compile(REGEX_PATTERN);
-		matcher = pattern.matcher(content);
-		return matcher.find();
 	}
 	
 	private void checkContent(String content){
-		if (checkEncryptText(content)) {
+		Pattern pattern = Pattern.compile(REGEX_PATTERN);
+		Matcher matcher = pattern.matcher(content);
+		if (matcher.find()) {
+			start = matcher.start();
+			end = matcher.end();
 			Bundle bundle = new Bundle();
-			bundle.putString("ciphertext", matcher.group(2));
+			bundle.putString("ciphertext", matcher.group(1));
 			bundle.putString("content", content);
 			DecryptDialog dialog = new DecryptDialog();
-			dialog.setArguments(bundle);
-			dialog.show(getFragmentManager(), "TAG");
+				dialog.show(getFragmentManager().beginTransaction(), "TAG");
 		}else{
 			email_content.loadData(content, "text/html", null);
 		}
@@ -196,7 +203,6 @@ public class ReadActivity extends AppCompatActivity implements DecryptDialogList
 			super.onPostExecute(result);
 			if(result)
 			{
-//				email_content.loadData(message.getContent(), "text/html", null);
 				checkContent(message.getContent());
 			}else{
 				Toast.makeText(activity, Log, Toast.LENGTH_SHORT).show();
@@ -207,8 +213,15 @@ public class ReadActivity extends AppCompatActivity implements DecryptDialogList
 	}
 
 	@Override
-	public void loadContent(String ciphertext) {
+	public void loadContent(String plaintext, String content) {
 		// TODO Auto-generated method stub
-		email_content.loadData(ciphertext, "text/html", null);
+		result = content.substring(index, index + (start - index)) + plaintext + content.substring(end);
+		checkContent(result);
+	}
+
+	@Override
+	public void loadContent(String content) {
+		// TODO Auto-generated method stub
+		email_content.loadData(content, "text/html", null);
 	}
 }
