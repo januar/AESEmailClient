@@ -68,11 +68,21 @@ public class NewmailActivity extends AppCompatActivity implements
 			Bundle bundle = intent.getExtras();
 			InboxEntity entity = (InboxEntity) bundle
 					.getSerializable(InboxFragment.INBOX_ENTITY);
+			
+			String action = bundle.getString("action");
 			if (entity != null) {
-				txt_to.setText(entity.getFrom());
-				txt_subject.setText("Re: " + entity.getSubject());
-				if (entity.getSubject().startsWith("Re:")) {
-					txt_subject.setText(entity.getSubject());
+				if (action.equals("reply")) {
+					txt_to.setText(entity.getFrom());
+					txt_subject.setText("Re: " + entity.getSubject());
+					if (entity.getSubject().startsWith("Re:")) {
+						txt_subject.setText(entity.getSubject());
+					}
+				} else {
+					txt_subject.setText("Fwd: " + entity.getSubject());
+					if (entity.getSubject().startsWith("Fwd:")) {
+						txt_subject.setText(entity.getSubject());
+					}
+					txt_content.setText(entity.getContent());
 				}
 			}
 		} catch (Exception e) {

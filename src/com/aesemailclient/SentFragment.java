@@ -1,11 +1,16 @@
 package com.aesemailclient;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.aesemailclient.db.InboxEntity;
 import com.aesemailclient.db.SentDataSource;
 import com.aesemailclient.db.SentEntity;
+
 import android.annotation.SuppressLint;
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -17,6 +22,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Toast;
 
 public class SentFragment extends Fragment {
 	
@@ -62,6 +68,22 @@ public class SentFragment extends Fragment {
 	    	public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				// TODO Auto-generated method stub
+	    		Bundle bundle = new Bundle();
+	    		bundle.putString("activity", "sent");
+	    		
+	    		SentEntity sent = adapter.getItem(position);
+	    		InboxEntity inbox = new InboxEntity();
+	    		inbox.setId(sent.getId());
+	    		inbox.setSubject(sent.getSubject());
+	    		inbox.setFrom(sent.getFrom());
+	    		inbox.setTo(sent.getTo());
+	    		inbox.setDate(sent.getDate());
+	    		inbox.setContent(sent.getContent());
+	    		bundle.putSerializable(InboxFragment.INBOX_ENTITY, inbox);
+	    		
+	    		Intent intent = new Intent(getActivity(), ReadActivity.class);
+				intent.putExtras(bundle);
+				startActivity(intent);
 			}
 		});
 	    

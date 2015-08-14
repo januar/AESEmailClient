@@ -1,21 +1,12 @@
 package com.aesemailclient.aes;
 
 import java.io.UnsupportedEncodingException;
-import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.NoSuchAlgorithmException;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
 import android.util.Base64;
 
 public class CryptoUtils {
 	
-	private static final String ALGORITHM = "AES";
-    private static final String TRANSFORMATION = "AES";
+	/*private static final String ALGORITHM = "AES";
+    private static final String TRANSFORMATION = "AES";*/
     
     public static String LOG;
     
@@ -23,7 +14,7 @@ public class CryptoUtils {
 		// TODO Auto-generated constructor stub
 	}
 	
-	private static byte[] doCrypto(int cipherMode, String key, byte[] text)
+	/*private static byte[] doCrypto(int cipherMode, String key, byte[] text)
 	{
 		try {
 			Key secretKey = new SecretKeySpec(key.getBytes(), ALGORITHM);
@@ -58,7 +49,7 @@ public class CryptoUtils {
 			LOG = e.getMessage();
 		}
 		return null;
-	}
+	}*/
 	
 	public static String encrypt(String key, String plaintext) {
 		try {

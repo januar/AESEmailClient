@@ -41,6 +41,7 @@ public class ReadActivity extends AppCompatActivity implements DecryptDialogList
 	private int start;
 	private int end;
 	private String result;
+	private String status;
 	
 	TextView email_subject;
 	TextView email_from;
@@ -64,7 +65,9 @@ public class ReadActivity extends AppCompatActivity implements DecryptDialogList
 		setupActionBar();
 		Intent intent = this.getIntent();
 		Bundle bundle = intent.getExtras();
+		
 		entity = (InboxEntity) bundle.getSerializable(InboxFragment.INBOX_ENTITY);
+		status = bundle.getString("activity");
 		
 		email_subject = (TextView)findViewById(R.id.email_subject);
 		email_from = (TextView)findViewById(R.id.email_from);
@@ -87,13 +90,18 @@ public class ReadActivity extends AppCompatActivity implements DecryptDialogList
 		TextDrawable td = builder.build(icon.toUpperCase(), color);
 		email_avatar.setImageDrawable(td);
 		
-		datasource.open();
-		InboxEntity item = new InboxEntity();
-		item = datasource.getById(entity.getId());
-		if (!item.isDownload()) {
-			new GetEmailAsyncTask(this).execute(entity.getUUID());
+		if (status.equals("inbox")) {
+			datasource.open();
+			InboxEntity item = new InboxEntity();
+			item = datasource.getById(entity.getId());
+			if (!item.isDownload()) {
+				new GetEmailAsyncTask(this).execute(entity.getUUID());
+			}
+			checkContent(item.getContent());
+		}else{
+			email_content.loadData(entity.getContent(), "text/html", null);
 		}
-		checkContent(item.getContent());
+		
 	}
 	
 	/**
@@ -127,6 +135,12 @@ public class ReadActivity extends AppCompatActivity implements DecryptDialogList
 			Intent intent = new Intent(this, NewmailActivity.class);
 			Bundle bundle = new Bundle();
 			bundle.putSerializable(InboxFragment.INBOX_ENTITY, (Serializable) entity);
+			if (status.equals("inbox")) {
+				bundle.putString("action", "reply");
+			}else{
+				bundle.putString("action", "fw");
+			}
+			
 			intent.putExtras(bundle);
 			startActivity(intent);
 		default:

@@ -117,6 +117,7 @@ public class InboxFragment extends Fragment {
 				Intent intent = new Intent(getActivity(), ReadActivity.class);
 				Bundle bundle = new Bundle();
 				bundle.putSerializable(INBOX_ENTITY, (Serializable) entity);
+				bundle.putString("activity", "inbox");
 				intent.putExtras(bundle);
 				startActivity(intent);
 			}
