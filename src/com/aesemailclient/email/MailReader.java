@@ -176,8 +176,13 @@ public class MailReader {
 	public Message[] getMail() {
 		try {
 			init();
+			Message[] msg = null;
 			int email_count = inbox.getMessageCount();
-			Message[] msg = inbox.getMessages(email_count-9, email_count);
+			if (email_count < 10) {
+				msg = inbox.getMessages();
+			} else {
+				msg = inbox.getMessages(email_count-9, email_count);
+			}
 			return msg;
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block

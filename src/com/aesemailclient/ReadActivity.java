@@ -152,7 +152,8 @@ public class ReadActivity extends AppCompatActivity implements DecryptDialogList
 			bundle.putString("ciphertext", matcher.group(1));
 			bundle.putString("content", content);
 			DecryptDialog dialog = new DecryptDialog();
-				dialog.show(getFragmentManager().beginTransaction(), "TAG");
+			dialog.setArguments(bundle);
+			dialog.show(getFragmentManager().beginTransaction(), "TAG");
 		}else{
 			email_content.loadData(content, "text/html", null);
 		}
