@@ -1,4 +1,4 @@
-package com.aesemailclient.aes;
+package com.aesemailclient.crypto;
 
 public class AES {
 

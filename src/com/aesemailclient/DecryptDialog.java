@@ -3,7 +3,7 @@ package com.aesemailclient;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.aesemailclient.aes.CryptoUtils;
+import com.aesemailclient.crypto.CryptoUtils;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

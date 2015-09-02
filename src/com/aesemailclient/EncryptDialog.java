@@ -1,12 +1,14 @@
 package com.aesemailclient;
 
-import com.aesemailclient.aes.CryptoUtils;
+import com.aesemailclient.crypto.CryptoUtils;
+import com.aesemailclient.crypto.Rabin;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -15,9 +17,11 @@ import android.widget.Toast;
 
 public class EncryptDialog extends DialogFragment {
 	private View view;
+	private int public_key;
 
-	public EncryptDialog() {
+	public EncryptDialog(int public_key) {
 		// TODO Auto-generated constructor stub
+		this.public_key = public_key;
 	}
 
 	@Override
@@ -73,8 +77,10 @@ public class EncryptDialog extends DialogFragment {
 							Toast.makeText(getActivity(), CryptoUtils.LOG,
 									Toast.LENGTH_SHORT).show();
 						} else {
+							Rabin rabin = new Rabin();
+							String cipherKey = Base64.encodeToString(rabin.Encrypt(public_key, key), Base64.DEFAULT);
 							EncryptDialogListener activity = (EncryptDialogListener) getActivity();
-							activity.addEncrytedText("<encrypt>"+ cipher +"</encrypt>");
+							activity.addEncrytedText("<encrypt><t>"+ cipher +"<t><q>" +cipherKey+ "<q></encrypt>");
 							dismiss();
 						}
 					}

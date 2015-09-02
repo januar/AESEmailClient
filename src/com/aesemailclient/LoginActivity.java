@@ -26,8 +26,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import com.aesemailclient.crypto.SieveofEratosthenes;
 import com.aesemailclient.db.UserDataSource;
 import com.aesemailclient.db.UserEntity;
 import com.aesemailclient.email.MailReader;
@@ -302,6 +305,12 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 				MailReader mailReader = new MailReader(user);
 				if (mailReader.login()) {
 					userDatasource.save(user);
+					List<Integer> keys = SieveofEratosthenes.generateRabinKey();
+					int p = keys.get(0);
+					int q = keys.get(1);
+					int n = p * q;
+					String stringKey = String.format("%d, %d, %d", p, q, n);
+					CacheToFile.Write(getApplication(), CacheToFile.KEY_FILE, stringKey);
 					return true;
 				}
 			} catch (Exception e) {

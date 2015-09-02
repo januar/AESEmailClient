@@ -13,6 +13,7 @@ import android.util.Log;
 public class CacheToFile {
 	public static final String DATE_OLD = "date_old.txt";
 	public static final String DATE_LAST = "date_last.txt";
+	public static final String KEY_FILE = "key.txt";
 	public static final String TAG = "CacheToFile";
 	public static final int READ_BLOCK_SIZE = 100;
 	

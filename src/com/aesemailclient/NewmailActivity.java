@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.aesemailclient.EncryptDialog.EncryptDialogListener;
+import com.aesemailclient.crypto.CryptoUtils;
 import com.aesemailclient.db.InboxEntity;
 import com.aesemailclient.db.SentDataSource;
 import com.aesemailclient.db.SentEntity;
@@ -15,16 +16,27 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.style.BulletSpan;
 
 public class NewmailActivity extends AppCompatActivity implements
 		EncryptDialogListener {
@@ -37,6 +49,7 @@ public class NewmailActivity extends AppCompatActivity implements
 	private EditText txt_to;
 	private EditText txt_subject;
 	private EditText txt_content;
+	private int public_key;
 
 	ProgressDialog progress;
 
@@ -137,10 +150,20 @@ public class NewmailActivity extends AppCompatActivity implements
 			return true;
 
 		case R.id.action_encrypt:
-			new EncryptDialog().show(getFragmentManager(), "TAG");
+			//new EncryptDialog().show(getFragmentManager(), "TAG");
+			if (this.public_key <= 0) {
+				new RabinDialog().show(getFragmentManager(), "TAG");
+			}else{
+				new EncryptDialog(this.public_key).show(getFragmentManager(), "TAG");
+			}
 		}
-
 		return super.onOptionsItemSelected(item);
+	}
+	
+	public void showEncryptDialog(int public_key)
+	{
+		this.public_key = public_key;
+		new EncryptDialog(this.public_key).show(getFragmentManager(), "TAG");
 	}
 
 	public void addEncrytedText(String ciphertext) {
@@ -210,5 +233,70 @@ public class NewmailActivity extends AppCompatActivity implements
 			}
 		}
 	}
+	
+	private class RabinDialog extends DialogFragment{
+		private View view;
+		private EditText txt_publickey;
+		
+		public RabinDialog(){}
+		
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			// TODO Auto-generated method stub
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			LayoutInflater inflater = getActivity().getLayoutInflater();
+			view = inflater.inflate(R.layout.encrypt_layout, null);
+			txt_publickey = new EditText(getActivity());
+			LayoutParams lp = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+			txt_publickey.setLayoutParams(lp);
+			builder.setView(txt_publickey);
+			builder.setTitle("Rabin Cryptosystem");
+			builder.setMessage("Insert receiver public key:");
+			builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
 
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO Auto-generated method stub
+				}
+			}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO Auto-generated method stub
+
+				}
+			});
+
+			return builder.create();
+		}
+		
+		@Override
+		public void onStart() {
+			// TODO Auto-generated method stub
+			super.onStart();
+			
+			AlertDialog d = (AlertDialog) getDialog();
+			if (d != null) {
+				Button positive = (Button) d.getButton(Dialog.BUTTON_POSITIVE);
+				positive.setOnClickListener(new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						// TODO Auto-generated method stub
+						int public_key = 0;
+						try {
+							public_key = Integer.parseInt(txt_publickey.getText().toString());
+							showEncryptDialog(public_key);
+						} catch (NumberFormatException e) {
+							// TODO: handle exception
+							Toast.makeText(getActivity(), "Please insert valid number", Toast.LENGTH_SHORT).show();
+						} catch (Exception e) {
+							// TODO: handle exception
+							Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+						}
+					}
+				});
+			}
+		}
+	}
 }

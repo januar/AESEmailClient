@@ -1,4 +1,4 @@
-package com.aesemailclient.aes;
+package com.aesemailclient.crypto;
 
 import java.io.UnsupportedEncodingException;
 import android.util.Base64;
@@ -63,7 +63,7 @@ public class CryptoUtils {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			LOG = e.getMessage();
-		} catch (com.aesemailclient.aes.InvalidKeyException e) {
+		} catch (com.aesemailclient.crypto.InvalidKeyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			LOG = e.getMessage();
@@ -85,7 +85,7 @@ public class CryptoUtils {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			LOG = e.getMessage();
-		} catch (com.aesemailclient.aes.InvalidKeyException e) {
+		} catch (com.aesemailclient.crypto.InvalidKeyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			LOG = e.getMessage();
