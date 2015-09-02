@@ -33,6 +33,14 @@
                 android:text="p :"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="Small Text"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -48,6 +56,15 @@
                 android:layout_height="wrap_content"
                 android:text="q :"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TextView
+                android:id="@+id/textView7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="Small Text"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
         </LinearLayout>
     </LinearLayout>
 
@@ -64,6 +81,31 @@
             android:layout_height="wrap_content"
             android:text="Public key"
             android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="2dp" >
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="n :"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TextView
+                android:id="@+id/textView8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="Small Text"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
 </LinearLayout>
