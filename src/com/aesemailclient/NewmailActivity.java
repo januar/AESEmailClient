@@ -287,6 +287,7 @@ public class NewmailActivity extends AppCompatActivity implements
 						try {
 							public_key = Integer.parseInt(txt_publickey.getText().toString());
 							showEncryptDialog(public_key);
+							dismiss();
 						} catch (NumberFormatException e) {
 							// TODO: handle exception
 							Toast.makeText(getActivity(), "Please insert valid number", Toast.LENGTH_SHORT).show();

@@ -309,7 +309,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 					int p = keys.get(0);
 					int q = keys.get(1);
 					int n = p * q;
-					String stringKey = String.format("%d, %d, %d", p, q, n);
+					String stringKey = p + "," + q + "," + n;
 					CacheToFile.Write(getApplication(), CacheToFile.KEY_FILE, stringKey);
 					return true;
 				}

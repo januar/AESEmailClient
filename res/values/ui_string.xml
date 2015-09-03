@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lblPrivateKey">Private key</string>
+    <string name="lblp">p : </string>
+    <string name="lblq">q : </string>
+    <string name="lblPublicKey">Public key</string>
+    <string name="lbln">n : </string>
+    <string name="public_key_copy">copy button</string>
+    <string name="btnGenerate">Generate key</string>
+    
+</resources>

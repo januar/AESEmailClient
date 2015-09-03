@@ -1,26 +1,20 @@
 package com.aesemailclient;
 
 import java.io.Serializable;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
 import javax.mail.Address;
 import javax.mail.Message;
-
 import me.maxwin.view.XListView;
 import me.maxwin.view.XListView.IXListViewListener;
-
 import com.aesemailclient.db.InboxDataSource;
 import com.aesemailclient.db.InboxEntity;
 import com.aesemailclient.db.UserDataSource;
 import com.aesemailclient.db.UserEntity;
 import com.aesemailclient.email.MailReader;
 import com.aesemailclient.email.MailReaderAsyncTask;
-
 import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Intent;

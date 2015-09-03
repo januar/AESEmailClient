@@ -59,7 +59,7 @@ public class MainActivity extends ActionBarActivity {
 		dataList.add(new DrawerItem("Inbox", R.drawable.ic_action_email));
 		dataList.add(new DrawerItem("Sent Item", R.drawable.ic_action_send_now));
 		dataList.add(new DrawerItem("About", R.drawable.ic_action_about));
-//		dataList.add(new DrawerItem("Settings", R.drawable.ic_action_settings));
+		dataList.add(new DrawerItem("Key", R.drawable.ic_action_settings));
 		dataList.add(new DrawerItem("Sign out", R.drawable.ic_action_help));
 
 		adapter = new CustomDrawerAdapter(this, R.layout.custom_drawer_item,
@@ -133,7 +133,10 @@ public class MainActivity extends ActionBarActivity {
 		case 1: // sent
 			fragment = new SentFragment();
 			break;
-		case 3: // sign out
+		case 3: // key
+			fragment = new KeyFragment();
+			break;
+		case 4: // sign out
 			UserDataSource userDatasource= new UserDataSource(this);
 			userDatasource.open();
 			userDatasource.delete();

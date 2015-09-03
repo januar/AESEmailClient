@@ -7,6 +7,8 @@ import java.util.regex.Pattern;
 import javax.mail.Message;
 
 import com.aesemailclient.DecryptDialog.DecryptDialogListener;
+import com.aesemailclient.crypto.CryptoUtils;
+import com.aesemailclient.crypto.Rabin;
 import com.aesemailclient.db.InboxDataSource;
 import com.aesemailclient.db.InboxEntity;
 import com.aesemailclient.db.UserDataSource;
@@ -23,6 +25,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -52,6 +55,8 @@ public class ReadActivity extends AppCompatActivity implements DecryptDialogList
 	ProgressBar email_progress;
 	
 	public static final String REGEX_PATTERN = "<encrypt>([a-zA-Z0-9\\W]*?)</encrypt>";
+	public static final String REGEX_TEXT = "<t>([a-zA-Z0-9\\W]*?)</t>";
+	public static final String REGEX_KEY = "<q>([a-zA-Z0-9\\W]*?)</q>";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -162,12 +167,46 @@ public class ReadActivity extends AppCompatActivity implements DecryptDialogList
 		if (matcher.find()) {
 			start = matcher.start();
 			end = matcher.end();
-			Bundle bundle = new Bundle();
-			bundle.putString("ciphertext", matcher.group(1));
-			bundle.putString("content", content);
-			DecryptDialog dialog = new DecryptDialog();
-			dialog.setArguments(bundle);
-			dialog.show(getFragmentManager().beginTransaction(), "TAG");
+			Pattern patternText = Pattern.compile(REGEX_TEXT);
+			Matcher matcherText = patternText.matcher(matcher.group(1));
+			
+			Pattern patternKey = Pattern.compile(REGEX_KEY);
+			Matcher matcherKey = patternKey.matcher(matcher.group(1));
+			
+			Boolean isFindText = matcherText.find();
+			Boolean isFindKey = matcherKey.find();
+			if (isFindText && isFindKey) {
+				try {
+					String[] stringKey = CacheToFile.Read(this, CacheToFile.KEY_FILE).split(",");
+					int p = Integer.parseInt(stringKey[0]);
+					int q = Integer.parseInt(stringKey[1]);
+					int n = p * q;
+					
+					Rabin rabin = new Rabin();
+					byte[] cipherByte = Base64.decode(matcherKey.group(1), Base64.DEFAULT);
+					String aesKey = rabin.Decrypt(p, q, cipherByte);
+					
+					String plaintext = CryptoUtils.decrypt(aesKey, matcherText.group(1));
+					if (plaintext != "") {
+						loadContent(plaintext, content);
+					}else{
+						Toast.makeText(this, CryptoUtils.LOG,
+								Toast.LENGTH_SHORT).show();
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+					loadContent(matcher.group(1), content);
+				}
+			}else if(!isFindText && !isFindKey){
+				Bundle bundle = new Bundle();
+				bundle.putString("ciphertext", matcher.group(1));
+				bundle.putString("content", content);
+				DecryptDialog dialog = new DecryptDialog();
+				dialog.setArguments(bundle);
+				dialog.show(getFragmentManager().beginTransaction(), "TAG");
+			}else{
+				loadContent(matcher.group(1), content);
+			}
 		}else{
 			email_content.loadData(content, "text/html", null);
 		}

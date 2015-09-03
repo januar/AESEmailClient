@@ -80,7 +80,7 @@ public class EncryptDialog extends DialogFragment {
 							Rabin rabin = new Rabin();
 							String cipherKey = Base64.encodeToString(rabin.Encrypt(public_key, key), Base64.DEFAULT);
 							EncryptDialogListener activity = (EncryptDialogListener) getActivity();
-							activity.addEncrytedText("<encrypt><t>"+ cipher +"<t><q>" +cipherKey+ "<q></encrypt>");
+							activity.addEncrytedText("<encrypt><t>"+ cipher +"</t><q>" +cipherKey+ "</q></encrypt>");
 							dismiss();
 						}
 					}
