@@ -305,12 +305,26 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 				MailReader mailReader = new MailReader(user);
 				if (mailReader.login()) {
 					userDatasource.save(user);
-					List<Integer> keys = SieveofEratosthenes.generateRabinKey();
-					int p = keys.get(0);
-					int q = keys.get(1);
-					int n = p * q;
-					String stringKey = p + "," + q + "," + n;
-					CacheToFile.Write(getApplication(), CacheToFile.KEY_FILE, stringKey);
+					Boolean generateKey = true;
+					String stringKey = CacheToFile.Read(getApplication(), CacheToFile.KEY_FILE);
+					if (!stringKey.equals("")) {
+						String[] listKey = stringKey.split(",");
+						if (listKey.length == 4) {
+							if (listKey[3].equals(user.getEmail())) {
+								generateKey = false;
+							}
+						}
+					}
+					
+					if (generateKey) {
+						List<Integer> keys = SieveofEratosthenes.generateRabinKey();
+						int p = keys.get(0);
+						int q = keys.get(1);
+						int n = p * q;
+						stringKey = p + "," + q + "," + n + "," + user.getEmail();
+						CacheToFile.Write(getApplication(), CacheToFile.KEY_FILE, stringKey);
+					}
+					
 					return true;
 				}
 			} catch (Exception e) {

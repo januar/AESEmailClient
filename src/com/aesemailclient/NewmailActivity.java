@@ -235,7 +235,7 @@ public class NewmailActivity extends AppCompatActivity implements
 	}
 	
 	private class RabinDialog extends DialogFragment{
-		private View view;
+		//private View view;
 		private EditText txt_publickey;
 		
 		public RabinDialog(){}
@@ -245,14 +245,14 @@ public class NewmailActivity extends AppCompatActivity implements
 			// TODO Auto-generated method stub
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 			LayoutInflater inflater = getActivity().getLayoutInflater();
-			view = inflater.inflate(R.layout.encrypt_layout, null);
+			//view = inflater.inflate(R.layout.encrypt_layout, null);
 			txt_publickey = new EditText(getActivity());
 			LayoutParams lp = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 			txt_publickey.setLayoutParams(lp);
 			builder.setView(txt_publickey);
 			builder.setTitle("Rabin Cryptosystem");
 			builder.setMessage("Insert receiver public key:");
-			builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+			builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 
 				@Override
 				public void onClick(DialogInterface dialog, int which) {

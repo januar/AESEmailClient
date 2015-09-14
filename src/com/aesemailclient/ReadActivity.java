@@ -8,6 +8,7 @@ import javax.mail.Message;
 
 import com.aesemailclient.DecryptDialog.DecryptDialogListener;
 import com.aesemailclient.crypto.CryptoUtils;
+import com.aesemailclient.crypto.InvalidKeyException;
 import com.aesemailclient.crypto.Rabin;
 import com.aesemailclient.db.InboxDataSource;
 import com.aesemailclient.db.InboxEntity;
@@ -20,20 +21,29 @@ import com.aesemailclient.textdrawable.util.ColorGenerator;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.LinearLayout.LayoutParams;
 
 public class ReadActivity extends AppCompatActivity implements DecryptDialogListener {
 	
@@ -45,6 +55,8 @@ public class ReadActivity extends AppCompatActivity implements DecryptDialogList
 	private int end;
 	private String result;
 	private String status;
+	private int private_p;
+	private int private_q;
 	
 	TextView email_subject;
 	TextView email_from;
@@ -106,7 +118,6 @@ public class ReadActivity extends AppCompatActivity implements DecryptDialogList
 		}else{
 			email_content.loadData(entity.getContent(), "text/html", null);
 		}
-		
 	}
 	
 	/**
@@ -177,21 +188,10 @@ public class ReadActivity extends AppCompatActivity implements DecryptDialogList
 			Boolean isFindKey = matcherKey.find();
 			if (isFindText && isFindKey) {
 				try {
-					String[] stringKey = CacheToFile.Read(this, CacheToFile.KEY_FILE).split(",");
-					int p = Integer.parseInt(stringKey[0]);
-					int q = Integer.parseInt(stringKey[1]);
-					int n = p * q;
-					
-					Rabin rabin = new Rabin();
-					byte[] cipherByte = Base64.decode(matcherKey.group(1), Base64.DEFAULT);
-					String aesKey = rabin.Decrypt(p, q, cipherByte);
-					
-					String plaintext = CryptoUtils.decrypt(aesKey, matcherText.group(1));
-					if (plaintext != "") {
-						loadContent(plaintext, content);
+					if (private_p == 0 && private_q == 0) {
+						new RabinDialog(matcherKey, matcherText, content).show(getFragmentManager(), "");
 					}else{
-						Toast.makeText(this, CryptoUtils.LOG,
-								Toast.LENGTH_SHORT).show();
+						encrypt(matcherKey, matcherText, content);
 					}
 				} catch (Exception e) {
 					// TODO: handle exception
@@ -209,6 +209,20 @@ public class ReadActivity extends AppCompatActivity implements DecryptDialogList
 			}
 		}else{
 			email_content.loadData(content, "text/html", null);
+		}
+	}
+	
+	private void encrypt(Matcher matcherKey, Matcher matcherText, String content) throws InvalidKeyException {
+		Rabin rabin = new Rabin();
+		byte[] cipherByte = Base64.decode(matcherKey.group(1), Base64.DEFAULT);
+		String aesKey = rabin.Decrypt(private_p, private_q, cipherByte);
+		
+		String plaintext = CryptoUtils.decrypt(aesKey, matcherText.group(1));
+		if (plaintext != "") {
+			loadContent(plaintext, content);
+		}else{
+			Toast.makeText(this, CryptoUtils.LOG,
+					Toast.LENGTH_SHORT).show();
 		}
 	}
 	
@@ -277,5 +291,122 @@ public class ReadActivity extends AppCompatActivity implements DecryptDialogList
 	public void loadContent(String content) {
 		// TODO Auto-generated method stub
 		email_content.loadData(content, "text/html", null);
+	}
+	
+	private class RabinDialog extends DialogFragment{
+		EditText txt_p;
+		EditText txt_q;
+		Matcher matcherKey; 
+		Matcher matcherText; 
+		String content;
+		
+		public RabinDialog(Matcher matcherKey, Matcher matcherText, String content){
+			this.matcherKey = matcherKey;
+			this.matcherText = matcherText;
+			this.content = content;
+		}
+		
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			// TODO Auto-generated method stub
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			
+			LinearLayout layout1 = new LinearLayout(getActivity());
+			layout1.setOrientation(LinearLayout.VERTICAL);
+			layout1.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+			layout1.setPadding(10, 0, 10, 0);
+			
+			LinearLayout layout2 = new LinearLayout(getActivity());
+			layout2.setOrientation(LinearLayout.HORIZONTAL);
+			layout2.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+			
+			TextView lbl_p = new TextView(getActivity());
+			lbl_p.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+			lbl_p.setText("p :");
+			layout2.addView(lbl_p);
+			
+			txt_p = new EditText(getActivity());
+			txt_p.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+			layout2.addView(txt_p);
+			
+			LinearLayout layout3 = new LinearLayout(getActivity());
+			layout3.setOrientation(LinearLayout.HORIZONTAL);
+			layout3.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+			
+			TextView lbl_q = new TextView(getActivity());
+			lbl_q.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+			lbl_q.setText("q :");
+			layout3.addView(lbl_q);
+			
+			txt_q = new EditText(getActivity());
+			txt_q.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+			layout3.addView(txt_q);
+			
+			layout1.addView(layout2);
+			layout1.addView(layout3);
+			
+			builder.setView(layout1);
+			builder.setTitle("Rabin Cryptosystem");
+			builder.setMessage("Insert your private key:");
+			builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO Auto-generated method stub
+				}
+			}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO Auto-generated method stub
+
+				}
+			});
+
+			return builder.create();
+		}
+		
+		@Override
+		public void onStart() {
+			// TODO Auto-generated method stub
+			super.onStart();
+			
+			AlertDialog d = (AlertDialog) getDialog();
+			if (d != null) {
+				Button positive = (Button) d.getButton(Dialog.BUTTON_POSITIVE);
+				positive.setOnClickListener(new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						// TODO Auto-generated method stub
+						private_p = 0;
+						private_q = 0;
+						try {
+							private_p = Integer.parseInt(txt_p.getText().toString());
+							private_q = Integer.parseInt(txt_q.getText().toString());
+							encrypt(matcherKey, matcherText, content);
+							dismiss();
+						} catch (NumberFormatException e) {
+							// TODO: handle exception
+							Toast.makeText(getActivity(), "Please insert valid number", Toast.LENGTH_SHORT).show();
+						} catch (Exception e) {
+							// TODO: handle exception
+							Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+						}
+					}
+				});
+				
+				Button negative = (Button) d.getButton(Dialog.BUTTON_NEGATIVE);
+				negative.setOnClickListener(new View.OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						// TODO Auto-generated method stub
+						loadContent(content);
+						dismiss();
+					}
+				});
+			}
+		}
 	}
 }

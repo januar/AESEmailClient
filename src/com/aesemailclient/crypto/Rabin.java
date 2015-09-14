@@ -98,7 +98,7 @@ public class Rabin {
 		return 0;
 	}
 	
-	public String Decrypt(int p, int q, byte[] cipherByte) {
+	public String Decrypt(int p, int q, byte[] cipherByte) throws InvalidKeyException {
 		String plainText = "";
 		
 		for (int i = 0; i < cipherByte.length / 8; i++) {
@@ -114,6 +114,9 @@ public class Rabin {
 			this.kongruen = ByteBuffer.wrap(kongruenByte).getInt();
 			
 			int plainInt = this.Decrypt((long)cipherInt, p, q);
+			if (plainInt == 0) {
+				throw new InvalidKeyException("private key wrong.");
+			}
 			String plainBitString = Integer.toString(plainInt, 2);
 			plainText = plainText + (char)Integer.parseInt(plainBitString.substring(0, plainBitString.length() - 8), 2)
 					+ (char)Integer.parseInt(plainBitString.substring(plainBitString.length() - 8), 2);
